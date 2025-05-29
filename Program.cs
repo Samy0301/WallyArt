@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 namespace WallyArt
 {
     internal static class Program
@@ -15,3 +16,20 @@ namespace WallyArt
         }
     }
 }
+=======
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace WallyArt
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+        }
+    }
+}
+>>>>>>> 04db43be19875776973b051da5761a6cf603a30b
