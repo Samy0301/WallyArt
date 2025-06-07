@@ -1,0 +1,17 @@
+C:\Users\Ecohero\Desktop\Projects\WallyArt\bin\Debug\net6.0-windows\WallyArt.exe
+C:\Users\Ecohero\Desktop\Projects\WallyArt\bin\Debug\net6.0-windows\WallyArt.deps.json
+C:\Users\Ecohero\Desktop\Projects\WallyArt\bin\Debug\net6.0-windows\WallyArt.runtimeconfig.json
+C:\Users\Ecohero\Desktop\Projects\WallyArt\bin\Debug\net6.0-windows\WallyArt.dll
+C:\Users\Ecohero\Desktop\Projects\WallyArt\bin\Debug\net6.0-windows\WallyArt.pdb
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.csproj.AssemblyReference.cache
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.Form1.resources
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.csproj.GenerateResource.cache
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.AssemblyInfoInputs.cache
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.AssemblyInfo.cs
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.csproj.CoreCompileInputs.cache
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.dll
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\refint\WallyArt.dll
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.pdb
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.genruntimeconfig.cache
+C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\ref\WallyArt.dll
