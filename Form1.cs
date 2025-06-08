@@ -62,7 +62,9 @@ namespace WallyArt
 
         private void Paint_Click(object sender, EventArgs e)
         {
-
+            Form_Pixel formpixel = new Form_Pixel();
+            formpixel.Show();
+            this.Hide();
         }
 
         private void Import_Click(object sender, EventArgs e)
