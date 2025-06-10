@@ -16,11 +16,20 @@ namespace WallyArt
 
         const int WM_VSCROLL = 0x0115;
         const int SB_VERT = 1;
+
+        private int rows = 18;
+        private int cols = 18;
+        private int cellSize = 20;
+
         public Form1()
         {
             InitializeComponent();
+
             richTextBox1.TextChanged += RichTextBox1_TextChanged;
             richTextBox1.VScroll += RichTextBox1_VScroll;
+
+            DrawGrid();
+
         }
 
         private void RichTextBox1_TextChanged(object sender, EventArgs e)
@@ -62,9 +71,7 @@ namespace WallyArt
 
         private void Paint_Click(object sender, EventArgs e)
         {
-            Form_Pixel formpixel = new Form_Pixel();
-            formpixel.Show();
-            this.Hide();
+            
         }
 
         private void Import_Click(object sender, EventArgs e)
@@ -92,7 +99,36 @@ namespace WallyArt
             this.Close();
         }
 
-       
+        private void DrawGrid()
+        {
+            Bitmap bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.White);
+
+                Pen gridPen = new Pen(Color.Gray);
+
+                // Líneas horizontales
+                for (int y = 0; y <= rows; y++)
+                {
+                    g.DrawLine(gridPen, 0, y * cellSize, cols * cellSize, y * cellSize);
+                }
+
+                // Líneas verticales
+                for (int x = 0; x <= cols; x++)
+                {
+                    g.DrawLine(gridPen, x * cellSize, 0, x * cellSize, rows * cellSize);
+                }
+            }
+
+            pictureBox1.Image = bmp;
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+
+        }
     }
 
 }

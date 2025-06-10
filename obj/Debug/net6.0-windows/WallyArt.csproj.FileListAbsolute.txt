@@ -15,4 +15,3 @@ C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\refint\Wally
 C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.pdb
 C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.genruntimeconfig.cache
 C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\ref\WallyArt.dll
-C:\Users\Ecohero\Desktop\Projects\WallyArt\obj\Debug\net6.0-windows\WallyArt.Form_Pixel.resources
