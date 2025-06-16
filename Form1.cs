@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
+
 namespace WallyArt
 {
     public partial class Form1 : Form
@@ -28,7 +29,7 @@ namespace WallyArt
             richTextBox1.TextChanged += RichTextBox1_TextChanged;
             richTextBox1.VScroll += RichTextBox1_VScroll;
 
-            DrawGrid();
+            DrawGrid(25);
 
         }
 
@@ -99,31 +100,35 @@ namespace WallyArt
             this.Close();
         }
 
-        private void DrawGrid()
+        private void DrawGrid(int gridSize)
         {
-            Bitmap bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            using (Graphics g = Graphics.FromImage(bmp))
+            int width = pictureBox1.Width;
+            int height = pictureBox1.Height;
+            int cellSize = Math.Min(width / gridSize, height / gridSize);
+
+            Bitmap bitmap = new Bitmap(width, height);
+            using (Graphics g = Graphics.FromImage(bitmap))
             {
                 g.Clear(Color.White);
+                Pen pen = new Pen(Color.Black);
 
-                Pen gridPen = new Pen(Color.Gray);
-
-                // Líneas horizontales
-                for (int y = 0; y <= rows; y++)
+                // Dibujar líneas horizontales
+                for (int i = 0; i <= gridSize; i++)
                 {
-                    g.DrawLine(gridPen, 0, y * cellSize, cols * cellSize, y * cellSize);
+                    int y = i * cellSize;
+                    g.DrawLine(pen, 0, y, width, y);
                 }
 
-                // Líneas verticales
-                for (int x = 0; x <= cols; x++)
+                // Dibujar líneas verticales
+                for (int i = 0; i <= gridSize; i++)
                 {
-                    g.DrawLine(gridPen, x * cellSize, 0, x * cellSize, rows * cellSize);
+                    int x = i * cellSize;
+                    g.DrawLine(pen, x, 0, x, height);
                 }
             }
 
-            pictureBox1.Image = bmp;
+            pictureBox1.Image = bitmap;
         }
-
         private void pictureBox1_Click(object sender, EventArgs e)
         {
 
