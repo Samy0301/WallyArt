@@ -104,7 +104,13 @@ namespace WallyArt
         {
             int width = pictureBox1.Width;
             int height = pictureBox1.Height;
+
+            // Calcular el tamaño de celda para que quepan exactamente gridSize celdas
             int cellSize = Math.Min(width / gridSize, height / gridSize);
+
+            // Calcular el área que realmente va a usar la grilla
+            int gridWidth = cellSize * gridSize;
+            int gridHeight = cellSize * gridSize;
 
             Bitmap bitmap = new Bitmap(width, height);
             using (Graphics g = Graphics.FromImage(bitmap))
@@ -116,14 +122,14 @@ namespace WallyArt
                 for (int i = 0; i <= gridSize; i++)
                 {
                     int y = i * cellSize;
-                    g.DrawLine(pen, 0, y, width, y);
+                    g.DrawLine(pen, 0, y, gridWidth, y);
                 }
 
                 // Dibujar líneas verticales
                 for (int i = 0; i <= gridSize; i++)
                 {
                     int x = i * cellSize;
-                    g.DrawLine(pen, x, 0, x, height);
+                    g.DrawLine(pen, x, 0, x, gridHeight);
                 }
             }
 
