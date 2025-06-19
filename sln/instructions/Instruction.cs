@@ -18,18 +18,18 @@ namespace WallyArt.sln.instructions
         }
     }
 
-    public class SwapI : Instruction
+    public class SpawnI : Instruction
     {
         public int X;
         public int Y;
         
-        public SwapI(int x, int y, int line) : base(line) 
+        public SpawnI(int x, int y, int line) : base(line) 
         {
             X = x; Y = y; 
         }
         public override void Execute(Context context)
         {
-           
+            context.Spawn(X, Y);
         }
     }
 
@@ -42,33 +42,39 @@ namespace WallyArt.sln.instructions
         }
         public override void Execute(Context context)
         {
-            
+            context.SetBrushColor(Color);
+        }
+    }
+
+    public class SizeI : Instruction
+    {
+        public int Size;
+        public SizeI( int size, int line) : base(line) 
+        {
+            Size = size % 2 == 0 ? size - 1 : size;
+        }
+
+        public override void Execute(Context context)
+        {
+            context.BrushSize = Size;
         }
     }
 
     public class DrawLineI : Instruction
     {
-        public DrawLineI( , int line) : base(line) 
+        public int dirX;
+        public int dirY;
+        public int Distance;
+        public DrawLineI( int dx, int dy, int dist, int line) : base(line)
         {
-
+            dirX = dx;
+            dirY = dy;
+            Distance = dist;
         }
 
         public override void Execute(Context context)
         {
-            
-        }
-    }
-
-    public class ZyseI : Instruction
-    {
-        public ZyseI( , int line) : base(line)
-        {
-
-        }
-
-        public override void Execute(Context context)
-        {
-            
+            context.DrawLine(dirX, dirY, Distance);
         }
     }
 }

@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 namespace WallyArt.sln.ast
 {
     /* Representa un token individual con su tipo, valor y linea */
-    internal class Token
+    public class Token
     {
-        public TokenTipe Type;
+        public TokenType Type;
         public string Value;
         public int Line;
         
-        public Token(TokenTipe type, string value, int line)
+        public Token(TokenType type, string value, int line)
         {
             Type = type;
             Value = value;
@@ -22,7 +22,7 @@ namespace WallyArt.sln.ast
     }
 
     /* Define los tipos de tokens que se pueden recoocer en el lenguaje*/
-    public enum TokenTipe
+    public enum TokenType
     {
         Keyword,       /* Palabras clave como Swap, DrawLine, etc */
         Identifier,    /* Nombres de variables o etiquetas */

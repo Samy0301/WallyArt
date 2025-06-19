@@ -30,7 +30,7 @@
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.New = new System.Windows.Forms.ToolStripMenuItem();
-            this.Open = new System.Windows.Forms.ToolStripMenuItem();
+            this.Size = new System.Windows.Forms.ToolStripMenuItem();
             this.Paint = new System.Windows.Forms.ToolStripMenuItem();
             this.Import = new System.Windows.Forms.ToolStripMenuItem();
             this.Export = new System.Windows.Forms.ToolStripMenuItem();
@@ -38,6 +38,7 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -47,7 +48,7 @@
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.New,
-            this.Open,
+            this.Size,
             this.Paint,
             this.Import,
             this.Export,
@@ -66,12 +67,12 @@
             this.New.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.New.Click += new System.EventHandler(this.New_Click);
             // 
-            // Open
+            // Size
             // 
-            this.Open.Name = "Open";
-            this.Open.Size = new System.Drawing.Size(59, 24);
-            this.Open.Text = "Open";
-            this.Open.Click += new System.EventHandler(this.Open_Click);
+            this.Size.Name = "Size";
+            this.Size.Size = new System.Drawing.Size(50, 24);
+            this.Size.Text = "Size";
+            this.Size.Click += new System.EventHandler(this.Size_Click);
             // 
             // Paint
             // 
@@ -132,11 +133,19 @@
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(353, 31);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(42, 27);
+            this.textBox1.TabIndex = 6;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(787, 407);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.textBox2);
@@ -157,7 +166,7 @@
         #endregion
         private MenuStrip menuStrip1;
         private ToolStripMenuItem New;
-        private ToolStripMenuItem Open;
+        private ToolStripMenuItem Size;
         private ToolStripMenuItem Paint;
         private ToolStripMenuItem Import;
         private ToolStripMenuItem Export;
@@ -165,5 +174,6 @@
         private TextBox textBox2;
         private RichTextBox richTextBox1;
         private PictureBox pictureBox1;
+        private TextBox textBox1;
     }
 }

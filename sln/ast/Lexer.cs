@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace WallyArt.sln.ast
 {
     /* Convierte el teto del editor en una lista de tokens */
-    internal class Lexer
+    public class Lexer
     {
         public string[] lines;
         public int lineNumber;
@@ -42,23 +42,23 @@ namespace WallyArt.sln.ast
 
                     if (int.TryParse(val, out _))
                     {
-                        tokens.Add(new Token(TokenTipe.Number, val, lineNumber));
+                        tokens.Add(new Token(TokenType.Number, val, lineNumber));
                     }
                     else if (val.StartsWith("\""))
                     {
-                        tokens.Add(new Token(TokenTipe.String, val.Trim('"'), lineNumber));
+                        tokens.Add(new Token(TokenType.String, val.Trim('"'), lineNumber));
                     }
                     else if (val == "<-" || val == "==" || val == "<=" || val == ">=" || val == "<" || val == ">")
                     {
-                        tokens.Add(new Token(TokenTipe.Operator, val, lineNumber));
+                        tokens.Add(new Token(TokenType.Operator, val, lineNumber));
                     }
                     else if ("(),[]".Contains(val))
                     {
-                        tokens.Add(new Token(TokenTipe.Symbol, val, lineNumber));
+                        tokens.Add(new Token(TokenType.Symbol, val, lineNumber));
                     }
                     else if (Regex.IsMatch(val, "^[a-zA-Z_]\\w*$"))
                     {
-                        tokens.Add(new Token(TokenTipe.Identifier, val, lineNumber));
+                        tokens.Add(new Token(TokenType.Identifier, val, lineNumber));
                     }
                     else
                     {
@@ -67,7 +67,7 @@ namespace WallyArt.sln.ast
                 }
             }
 
-            tokens.Add(new Token(TokenTipe.EOF, "EOF", lineNumber));  /* Token especial de fin */
+            tokens.Add(new Token(TokenType.EOF, "EOF", lineNumber));  /* Token especial de fin */
             return tokens;
         }
         

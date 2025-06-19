@@ -2,6 +2,10 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using WallyArt.sln.context;
+using WallyArt.sln.ast;
+using WallyArt.sln.parser;
+using WallyArt.sln.instructions;
 
 
 namespace WallyArt
@@ -18,8 +22,7 @@ namespace WallyArt
         const int WM_VSCROLL = 0x0115;
         const int SB_VERT = 1;
 
-        private int rows = 18;
-        private int cols = 18;
+        private int currentCanvasSize = 25;
         private int cellSize = 20;
 
         public Form1()
@@ -60,19 +63,51 @@ namespace WallyArt
             richTextBox1.Clear();
         }
 
-        private void Open_Click(object sender, EventArgs e)
+        private void Size_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Archivos PW (*.pw)|*.pw";
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                richTextBox1.Text = File.ReadAllText(openFileDialog.FileName);
+                int newSize = int.Parse(textBox1.Text);
+
+                if(newSize < 1 || newSize > 100)
+                {
+                    MessageBox.Show("El tamaño debe estar entre 1 y 100");
+                    return;
+                }
+
+                currentCanvasSize = newSize;
+                DrawGrid(currentCanvasSize);    /* Actualiza el tamaño con el pasado por el usuario */
+            }
+            catch
+            {
+                MessageBox.Show("Introduzca un numero valido");
             }
         }
 
         private void Paint_Click(object sender, EventArgs e)
         {
-            
+            try
+            {
+                /* Crear contexto */
+                Context context = new Context(currentCanvasSize, pictureBox1);
+
+                /*Analizar codigo */
+                string code = richTextBox1.Text;
+                Lexer lexer = new Lexer(code);
+                List<Token> tokens = lexer.Tokenize();
+                Parser parser = new Parser(tokens);
+                List<Instruction> instructions = new parser.Parse();
+
+                /* Ejecutar instrucciones */
+                foreach(var instr in instructions)
+                {
+                    instr.Execute(context);
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Error:" + ex.Message);
+            }
         }
 
         private void Import_Click(object sender, EventArgs e)
@@ -135,10 +170,10 @@ namespace WallyArt
 
             pictureBox1.Image = bitmap;
         }
+
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-
-
+            
         }
     }
 
