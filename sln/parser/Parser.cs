@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WallyArt.sln.ast;
 using WallyArt.sln.instructions;
+using WallyArt.sln.context;
 
 namespace WallyArt.sln.parser
 {
@@ -20,6 +21,20 @@ namespace WallyArt.sln.parser
         }
 
         private Token Current => tokens[index];
+
+        private static readonly Dictionary<(int, int), string> DireccionesValidas = new()
+        {
+            [(-1,-1)] = "diagonal arriba izquierda",
+            [(-1,0)] = "izquierda",
+            [(-1,1)] = "diagonal abajo izquierda",
+            [(0,1)] = "abajo",
+            [(1,1)] = "diagonal abajo derecha",
+            [(1,0)] = "derecha",
+            [(1,-1)] = "diagonal arriba derecha",
+            [(0,-1)] = "arriba"
+        };
+
+        
         private void Advance() => index++;
 
         private bool Match(string value)
@@ -59,7 +74,7 @@ namespace WallyArt.sln.parser
                 Advance();
                 return val;
             }
-            throw new Exception($"Expected sting at line {Current.Line}");
+            throw new Exception($"Expected string at line {Current.Line}");
         }
 
         public List<Instruction> Parse()
@@ -93,6 +108,10 @@ namespace WallyArt.sln.parser
                     int dx = ExpectNumber();
                     Expect(",");
                     int dy = ExpectNumber();
+                    if(!DireccionesValidas.ContainsKey((dx, dy)))
+                    {
+                        throw new Exception($"Direccion invalida ({dx}, {dy}) en la linea {Current.Line}");
+                    }
                     Expect(",");
                     int dist = ExpectNumber();
                     Expect(")");
@@ -106,10 +125,64 @@ namespace WallyArt.sln.parser
                     Expect(")");
                     instructions.Add(new SizeI(k, Current.Line));
                 }
+                else if(Current.Value == "DrawCircle")
+                {
+                    Advance();
+                    Expect("(");
+                    int dx = ExpectNumber();
+                    Expect(",");
+                    int dy = ExpectNumber();
+                    if(!DireccionesValidas.ContainsKey((dx, dy)))
+                    {
+                        throw new Exception($"Direccion invalida ({dx}, {dy}) en la linea {Current.Line}");
+                    }
+                    Expect(",");
+                    int radius = ExpectNumber();
+                    Expect(")");
+                    instructions.Add(new DrawCircleI(dx, dy, radius, Current.Line));
+                }
+                else if(Current.Value == "DrawRectangle")
+                {
+                    Advance();
+                    Expect("(");
+                    int dx = ExpectNumber();
+                    Expect(",");
+                    int dy = ExpectNumber();
+                    if(!DireccionesValidas.ContainsKey((dx, dy)))
+                    {
+                        throw new Exception($"Direccion invalida({dx}, {dy}) en la linea {Current.Line}");
+                    }
+                    Expect(",");
+                    int distance = ExpectNumber();
+                    Expect(",");
+                    int width = ExpectNumber();
+                    Expect(",");
+                    int height = ExpectNumber();
+                    Expect(")");
+                    instructions.Add(new DrawRectangleI(dx, dy, distance, width, height, Current.Line));
+                }
+                else if (Current.Value == "Fill")
+                {
+                    Advance();
+                    Expect("(");
+                    Expect(")");
+                    instructions.Add(new FillI(Current.Line));
+                }
                 else
                 {
                     throw new Exception($"Unknow expresion '{Current.Value}' al line {Current.Line}");
                 }
+            }
+
+            if (instructions.Count == 0 || instructions[0] is not SpawnI)
+            {
+                MessageBox.Show("Todo codigo valido debe empezar con la instruccion Spawn(X, Y)");
+            }
+
+            int spawns = instructions.Count(instr => instr is SpawnI);
+            if (spawns != 1)
+            {
+                throw new Exception($"Solo se permite una instruccion Spawn fueron encontradas {spawns}");
             }
             return instructions;
         }

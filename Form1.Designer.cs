@@ -39,6 +39,7 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.Clean = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -47,11 +48,12 @@
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.New,
-            this.Size,
-            this.Paint,
             this.Import,
             this.Export,
+            this.New,
+            this.Paint,
+            this.Clean,
+            this.Size,
             this.Exit});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -140,6 +142,13 @@
             this.textBox1.Size = new System.Drawing.Size(42, 27);
             this.textBox1.TabIndex = 6;
             // 
+            // Clean
+            // 
+            this.Clean.Name = "Clean";
+            this.Clean.Size = new System.Drawing.Size(60, 24);
+            this.Clean.Text = "Clean";
+            this.Clean.Click += new System.EventHandler(this.Clean_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -175,5 +184,6 @@
         private RichTextBox richTextBox1;
         private PictureBox pictureBox1;
         private TextBox textBox1;
+        private ToolStripMenuItem Clean;
     }
 }

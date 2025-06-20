@@ -77,4 +77,60 @@ namespace WallyArt.sln.instructions
             context.DrawLine(dirX, dirY, Distance);
         }
     }
+
+    public class DrawCircleI : Instruction
+    {
+        public int dirX;
+        public int dirY;
+        public int Radius;
+
+        public DrawCircleI(int dx, int dy, int radius, int line) : base(line)
+        {
+            dirX = dx;
+            dirY = dy;
+            Radius = radius;
+        }
+
+        public override void Execute(Context context)
+        {
+            context.DrawCircle(dirX, dirY, Radius);
+        }
+
+    }
+
+    public class DrawRectangleI : Instruction
+    {
+        int dirX;
+        int dirY;
+        int Distance;
+        int Width;
+        int Height;
+
+        public DrawRectangleI(int dx, int dy, int distance, int width, int height, int line) : base(line)
+        {
+            dirX = dx;
+            dirY = dy;
+            Distance = distance;
+            Width = width;
+            Height = height;
+        }
+
+        public override void Execute(Context context)
+        {
+            context.DrawRectangle(dirX, dirY, Distance, Width, Height);
+        }
+    }
+
+    public class FillI : Instruction
+    {
+        public FillI(int line) : base(line)
+        {
+
+        }
+
+        public override void Execute(Context context)
+        {
+            context.Fill();
+        }
+    }
 }

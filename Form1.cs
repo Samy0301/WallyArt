@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Collections.Generic;
 using WallyArt.sln.context;
 using WallyArt.sln.ast;
 using WallyArt.sln.parser;
@@ -23,7 +24,7 @@ namespace WallyArt
         const int SB_VERT = 1;
 
         private int currentCanvasSize = 25;
-        private int cellSize = 20;
+        private Context context;
 
         public Form1()
         {
@@ -63,6 +64,14 @@ namespace WallyArt
             richTextBox1.Clear();
         }
 
+        private void Clean_Click(object sender, EventArgs e)
+        {
+            if (context != null)
+            {
+                context.ClearCanvas();
+            }
+        }
+
         private void Size_Click(object sender, EventArgs e)
         {
             try
@@ -76,6 +85,7 @@ namespace WallyArt
                 }
 
                 currentCanvasSize = newSize;
+                context = null;
                 DrawGrid(currentCanvasSize);    /* Actualiza el tamaño con el pasado por el usuario */
             }
             catch
@@ -88,18 +98,27 @@ namespace WallyArt
         {
             try
             {
-                /* Crear contexto */
-                Context context = new Context(currentCanvasSize, pictureBox1);
-
                 /*Analizar codigo */
                 string code = richTextBox1.Text;
                 Lexer lexer = new Lexer(code);
                 List<Token> tokens = lexer.Tokenize();
                 Parser parser = new Parser(tokens);
-                List<Instruction> instructions = new parser.Parse();
+                List<Instruction> instructions = parser.Parse();
+
+                if(instructions.Count ==0 || instructions[0] is not SpawnI)
+                {
+                    MessageBox.Show("Todo codigo valido debe empezar con la instruccion Spawn(X, Y)");
+                }
+
+
+                if (context == null)
+                {
+                     context = new Context(currentCanvasSize, pictureBox1);
+                }
+
 
                 /* Ejecutar instrucciones */
-                foreach(var instr in instructions)
+                foreach (var instr in instructions)
                 {
                     instr.Execute(context);
                 }
@@ -140,31 +159,26 @@ namespace WallyArt
             int width = pictureBox1.Width;
             int height = pictureBox1.Height;
 
-            // Calcular el tamaño de celda para que quepan exactamente gridSize celdas
-            int cellSize = Math.Min(width / gridSize, height / gridSize);
-
-            // Calcular el área que realmente va a usar la grilla
-            int gridWidth = cellSize * gridSize;
-            int gridHeight = cellSize * gridSize;
-
             Bitmap bitmap = new Bitmap(width, height);
+
             using (Graphics g = Graphics.FromImage(bitmap))
             {
                 g.Clear(Color.White);
-                Pen pen = new Pen(Color.Black);
+                Pen pen = new Pen(Color.Black, 1);
 
-                // Dibujar líneas horizontales
+                float cellW = (float)width / gridSize;
+                float cellH = (float)height / gridSize;
+
                 for (int i = 0; i <= gridSize; i++)
                 {
-                    int y = i * cellSize;
-                    g.DrawLine(pen, 0, y, gridWidth, y);
+                    int x = (int)Math.Round(i * cellW);
+                    g.DrawLine(pen, x, 0, x, height);
                 }
 
-                // Dibujar líneas verticales
                 for (int i = 0; i <= gridSize; i++)
                 {
-                    int x = i * cellSize;
-                    g.DrawLine(pen, x, 0, x, gridHeight);
+                    int y = (int)Math.Round(i * cellH);
+                    g.DrawLine(pen, 0, y, width, y);
                 }
             }
 
@@ -175,6 +189,8 @@ namespace WallyArt
         {
             
         }
+
+       
     }
 
 }
