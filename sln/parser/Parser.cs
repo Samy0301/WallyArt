@@ -37,10 +37,6 @@ namespace WallyArt.sln.parser
             [(0, -1)] = "arriba"
         };
 
-        public Token Peek(int offset = 1) => index + offset < tokens.Count ? tokens[index + offset] : tokens[^1];
-
-        private void Advance() => index++;
-
         private static readonly HashSet<string> ReservNames = new()
         {
             "Spawn",
@@ -58,6 +54,10 @@ namespace WallyArt.sln.parser
             "IsBrushSize",
             "IsCanvasColor"
         };
+
+        public Token Peek(int offset = 1) => index + offset < tokens.Count ? tokens[index + offset] : tokens[^1];
+
+        private void Advance() => index++;
 
         private bool Match(string value)
         {
@@ -232,6 +232,102 @@ namespace WallyArt.sln.parser
 
         private IExpression ParseExpression()
         {
+            return Parse0();
+        }
+
+        private IExpression Parse0()
+        {
+            IExpression left = ParseAnd();
+            while (Match("||"))
+            {
+                Advance();
+                IExpression rigth = ParseAnd();
+                left = new OrE(left, rigth);
+            }
+            return left;
+        }
+
+        private IExpression ParseAnd()
+        {
+            IExpression left = ParseComparison();
+            while (Match("&&"))
+            {
+                Advance();
+                IExpression rigth = ParseComparison();
+                left = new AndE(left, rigth);
+            }
+            return left;
+        }
+
+        private IExpression ParseComparison()
+        {
+            IExpression left = ParseAddSub();
+            while (Match("==") || Match("!=") || Match(">") || Match("<") || Match(">=") || Match("<="))
+            {
+                string op = Current.Value;
+                Advance();
+                IExpression rigth = ParseAddSub();
+
+                left = op switch
+                {
+                    "==" => new EqualE(left, rigth),
+                    "!=" => new NotEqualE(left, rigth),
+                    ">" => new GreaterE(left, rigth),
+                    "<" => new LessE(left, rigth),
+                    ">=" => new GreaterEqualE(left, rigth),
+                    "<=" => new LessEqualE(left, rigth),
+                    _ => throw new Exception ($"Error: Unrecognized operator {op}")
+                };
+            }
+            return left;
+        }
+
+        private IExpression ParseAddSub()
+        {
+            IExpression left = ParseMulDivMod();
+            while (Match("+") || Match("-"))
+            {
+                string op = Current.Value;
+                Advance();
+                IExpression rigth = ParseMulDivMod();
+
+                left = op == "+" ? new AddE(left, rigth) 
+                     : new SubE(left, rigth);
+            }
+            return left;
+        }
+
+        private IExpression ParseMulDivMod()
+        {
+            IExpression left = ParsePower();
+            while (Match("*") || Match("/") || Match("%"))
+            {
+                string op = Current.Value;
+                Advance();
+                IExpression rigth = ParsePower();
+
+                left = op == "*" ? new MulE(left, rigth)
+                     : op == "/" ? new DivE(left, rigth)
+                     : new ModE(left, rigth);
+            }
+            return left;
+        }
+
+        private IExpression ParsePower()
+        {
+            IExpression left = ParseAtom();
+            while (Match("**"))
+            {
+                Advance();
+                IExpression rigth = ParseAtom();
+                left = new PowE(left, rigth);
+            }
+            return left;
+        }
+
+        private IExpression ParseAtom()
+        {
+            
             if (Current.Type == TokenType.Number)
             {
                 int val = int.Parse(Current.Value);

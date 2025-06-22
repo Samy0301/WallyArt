@@ -12,6 +12,7 @@ namespace WallyArt.sln.expression
         int Evaluate(Context context);
     }
 
+    /* Numeros enteros */
     public class ConstantExpression : IExpression
     {
         public int Value;
@@ -20,6 +21,7 @@ namespace WallyArt.sln.expression
         public int Evaluate(Context context) => Value; 
     }
 
+    /* Variables ya declaradas por el usuario */
     public class VariableExpression : IExpression
     {
         public string Name;
@@ -39,6 +41,255 @@ namespace WallyArt.sln.expression
         }
     }
 
+    /* Operaciones aritmeticas */
+    public class AddE : IExpression  /* Suma */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public AddE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) + Rigth.Evaluate(context);
+        }
+    }
+
+    public class SubE : IExpression  /* Resta */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public SubE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) - Rigth.Evaluate(context);
+        }
+    }
+
+    public class MulE : IExpression  /* Multiplicacion */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public MulE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) * Rigth.Evaluate(context);
+        }
+    }
+
+    public class DivE : IExpression  /* Division */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public DivE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            int rigthVal = Rigth.Evaluate(context);
+
+            if (rigthVal == 0)
+            {
+                throw new Exception($"Error: You can't divide for 0");
+            }
+
+            return Left.Evaluate(context) / rigthVal;
+        }
+    }
+
+    public class ModE : IExpression  /* Modulo */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public ModE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) % Rigth.Evaluate(context);
+        }
+    }
+
+    public class PowE : IExpression  /* Potencia */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public PowE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return (int)Math.Pow(Left.Evaluate(context), Rigth.Evaluate(context));
+        }
+    }
+
+    /* Operadores de comparacion  Devuelve 1 == true, 0 == false */
+    public class EqualE : IExpression  /* == */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public EqualE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) == Rigth.Evaluate(context) ? 1 : 0;
+        }
+    }
+
+    public class GreaterE : IExpression  /* > */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public GreaterE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) > Rigth.Evaluate(context) ? 1 : 0;
+        }
+    }
+
+    public class LessE : IExpression  /* < */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public LessE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) < Rigth.Evaluate(context) ? 1 : 0;
+        }
+    }
+
+    public class GreaterEqualE : IExpression  /* >= */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public GreaterEqualE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) >= Rigth.Evaluate(context) ? 1 : 0;
+        }
+    }
+
+    public class LessEqualE : IExpression  /* <= */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public LessEqualE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) <= Rigth.Evaluate(context) ? 1 : 0;
+        }
+    }
+
+    public class NotEqualE : IExpression  /* != */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public NotEqualE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) != Rigth.Evaluate(context) ? 1 : 0;
+        }
+    }
+
+    /* Opradores logicos || y &&   Devuelven 1 == true, 0 == false */
+    public class AndE : IExpression  /* && */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public AndE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) != 0 && Rigth.Evaluate(context) != 0 ? 1 : 0;
+        }
+    }
+
+    public class OrE : IExpression  /* || */
+    {
+        public IExpression Left;
+        public IExpression Rigth;
+
+        public OrE(IExpression left, IExpression rigth)
+        {
+            Left = left;
+            Rigth = rigth;
+        }
+
+        public int Evaluate(Context context)
+        {
+            return Left.Evaluate(context) != 0 || Rigth.Evaluate(context) != 0 ? 1 : 0;
+        }
+    }
+
+    /* Funciones */
     public class GetActualXE : IExpression
     {
         public int Evaluate(Context context) => context.X;
