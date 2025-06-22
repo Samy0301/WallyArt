@@ -80,7 +80,7 @@ namespace WallyArt
 
                 if(newSize < 1 || newSize > 100)
                 {
-                    MessageBox.Show("El tamaño debe estar entre 1 y 100");
+                    MessageBox.Show("The Canva Size must be between 1 and 100");
                     return;
                 }
 
@@ -90,7 +90,7 @@ namespace WallyArt
             }
             catch
             {
-                MessageBox.Show("Introduzca un numero valido");
+                MessageBox.Show("Enter a valid number");
             }
         }
 
@@ -104,12 +104,6 @@ namespace WallyArt
                 List<Token> tokens = lexer.Tokenize();
                 Parser parser = new Parser(tokens);
                 List<Instruction> instructions = parser.Parse();
-
-                if(instructions.Count ==0 || instructions[0] is not SpawnI)
-                {
-                    MessageBox.Show("Todo codigo valido debe empezar con la instruccion Spawn(X, Y)");
-                }
-
 
                 if (context == null)
                 {

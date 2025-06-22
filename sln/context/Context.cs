@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WallyArt;
 using WallyArt.sln.parser;
+using WallyArt.sln.expression;
 
 namespace WallyArt.sln.context
 {
@@ -19,7 +20,7 @@ namespace WallyArt.sln.context
         public int brushSize = 1;                       /* Tamaño actua del pincel */
         private PictureBox pictureBox1;                 /* Visual del canvas en From1 */
 
-        private Dictionary<string, Color> ColorMap = new Dictionary<string, Color>()
+        public Dictionary<string, Color> ColorMap = new Dictionary<string, Color>()
         {
             ["Red"] = Color.Red,
             ["Blue"] = Color.Blue,
@@ -31,6 +32,8 @@ namespace WallyArt.sln.context
             ["White"] = Color.White,
             ["Transparent"] = Color.Transparent,
         };
+
+        public Dictionary<string, int> Variables = new Dictionary<string, int>();
 
 
         public Context(int size, PictureBox pb)
@@ -167,7 +170,7 @@ namespace WallyArt.sln.context
             return ColorMap.ContainsKey(color) ? ColorMap[color].ToArgb() : Color.Transparent.ToArgb();
         }
 
-        private Color InttoColor(int val)=>Color.FromArgb(val);
+        public Color InttoColor(int val) => Color.FromArgb(val);
 
         public void Redraw()
         {

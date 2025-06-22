@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WallyArt.sln.context;
+using WallyArt.sln.expression;
 
 namespace WallyArt.sln.instructions
 {
@@ -131,6 +132,24 @@ namespace WallyArt.sln.instructions
         public override void Execute(Context context)
         {
             context.Fill();
+        }
+    }
+
+    public class VariableAssignI : Instruction
+    {
+        public string VarName;
+        public IExpression Expression;
+
+        public VariableAssignI(string varName, IExpression expression, int line) : base(line)
+        {
+            VarName = varName;
+            Expression = expression;
+        }
+
+        public override void Execute(Context context)
+        {
+            int value = Expression.Evaluate(context);
+            context.Variables[VarName] = value;
         }
     }
 }

@@ -34,7 +34,7 @@ namespace WallyArt.sln.ast
                 }
 
                 /* Separa en partes usando un exprecion regular */
-                var parts = Regex.Matches(trimeed, "\".*?\"|[a-zA-Z_][\\w\\-]*|\\d+|<-|==|<=|>=|!=|[+\\-*/%()\\[\\],]");
+                var parts = Regex.Matches(trimeed, "\".*?\"|[a-zA-Z_][\\w\\-]*|-?\\d+|<-|==|<=|>=|!=|[+\\-*/%()\\[\\],]");
 
                 foreach (Match part in parts)
                 {
@@ -62,7 +62,7 @@ namespace WallyArt.sln.ast
                     }
                     else
                     {
-                        throw new Exception($"Unknwn token '{val}' at line {lineNumber}");
+                        throw new Exception($"Error at line {lineNumber}: Unknown token '{val}'");
                     }
                 }
             }
