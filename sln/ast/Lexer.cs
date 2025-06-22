@@ -34,7 +34,7 @@ namespace WallyArt.sln.ast
                 }
 
                 /* Separa en partes usando un exprecion regular */
-                var parts = Regex.Matches(trimeed, "\".*?\"|[a-zA-Z_][\\w\\-]*|-?\\d+|<-|==|<=|>=|!=|[+\\-*/%()\\[\\],]");
+                var parts = Regex.Matches(trimeed, "\".*?\"|[a-zA-Z_][\\w\\-]*|-?\\d+|<-|==|<=|>=|!=|\\|\\||&&|\\*\\*|[+\\-*/%()\\[\\],<>]");
 
                 foreach (Match part in parts)
                 {
@@ -48,7 +48,7 @@ namespace WallyArt.sln.ast
                     {
                         tokens.Add(new Token(TokenType.String, val.Trim('"'), lineNumber));
                     }
-                    else if (val == "<-" || val == "==" || val == "<=" || val == ">=" || val == "<" || val == ">")
+                    else if (val == "<-" || val == "==" || val == "<=" || val == ">=" || val == "<" || val == ">" || val == "!=" || val == "*" || val == "**" || val == "&&" || val == "||")
                     {
                         tokens.Add(new Token(TokenType.Operator, val, lineNumber));
                     }

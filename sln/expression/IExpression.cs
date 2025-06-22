@@ -307,11 +307,11 @@ namespace WallyArt.sln.expression
 
     public class GetColorCountE : IExpression
     {
-        string Color;
-        int X1;
-        int Y1;
-        int X2;
-        int Y2;
+        public string Color;
+        public int X1;
+        public int Y1;
+        public int X2;
+        public int Y2;
 
         public GetColorCountE(string color, int x1, int y1, int x2, int y2)
         {
@@ -358,7 +358,7 @@ namespace WallyArt.sln.expression
 
     public class IsBrushColorE : IExpression
     {
-        string Color;
+        public string Color;
 
         public IsBrushColorE(string color)
         {
@@ -382,7 +382,7 @@ namespace WallyArt.sln.expression
 
     public class IsBrushSizeE : IExpression
     {
-        int Size;
+        public int Size;
 
         public IsBrushSizeE(int size)
         {
@@ -401,9 +401,9 @@ namespace WallyArt.sln.expression
 
     public class IsCanvasColorE : IExpression
     {
-        string Color;
-        int Vertical;
-        int Horizontal;
+        public string Color;
+        public int Vertical;
+        public int Horizontal;
 
         public IsCanvasColorE(string color, int vertical, int horizontal)
         {

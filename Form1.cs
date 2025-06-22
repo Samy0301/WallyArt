@@ -112,9 +112,28 @@ namespace WallyArt
 
 
                 /* Ejecutar instrucciones */
-                foreach (var instr in instructions)
+                int i = 0;
+                while (i < instructions.Count)
                 {
-                    instr.Execute(context);
+                    context.NextLine = -1;   /* Reinici el salto */
+
+                    instructions[i].Execute(context);    /* Ejecutar una instruccion */
+                    if (context.NextLine != -1)
+                    {
+                        /* Buscar a que instruccion saltar segun la linea guardada */
+                        int newPos = instructions.FindIndex(instructions => instructions.Line == context.NextLine);
+
+                        if (newPos == -1)
+                        {
+                            throw new Exception($"Error at line {context.NextLine}: Instruction not found");
+                        }
+                        i = newPos;    /* Saltar a esa posicion */
+                        
+                    }
+                    else
+                    {
+                        i++;     /* Continuar a la siguiente instruccion normalmente */
+                    }
                 }
             }
             catch(Exception ex)

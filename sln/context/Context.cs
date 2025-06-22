@@ -35,6 +35,9 @@ namespace WallyArt.sln.context
 
         public Dictionary<string, int> Variables = new Dictionary<string, int>();
 
+        public Dictionary<string, int> Labels = new Dictionary<string, int>();
+
+        public int NextLine;    /* Controla el cambio de linea */
 
         public Context(int size, PictureBox pb)
         {
@@ -108,61 +111,92 @@ namespace WallyArt.sln.context
         public void DrawCircle(int dx, int dy, int radius)
         {
             /* Calcular la nueva posicion */
-            int centerX = X + dx * radius;
-            int centerY = Y + dy * radius;
+            int CX = X + dx * radius;
+            int CY = Y + dy * radius;
 
-            /* Validar que este dentro del camvas */
-            if(centerX<0|| centerY < 0 || centerX >= CanvasSize || centerY >= CanvasSize)
+            /* Actualiza la posicion */
+            X = CX;
+            Y = CY;
+
+            int color = ColorMap[BrushColor].ToArgb();
+
+            Pintar(CX, CY - radius);                          /* Aribba */
+            Pintar(CX, CY + radius);                          /* Abajo*/
+            Pintar(CX - radius, CY);                          /* Izquierda */
+            Pintar(CX + radius, CY);                          /* Derecha */
+            Pintar(CX - (radius - 1), CY - (radius - 1));     /* Arriba izquierda */
+            Pintar(CX + (radius - 1), CY - (radius - 1));     /* Arriba derecha */
+            Pintar(CX - (radius - 1), CY + (radius - 1));     /* Abajo izquierda */  
+            Pintar(CX + (radius - 1), CY + (radius - 1));     /* Abajo derecha */
+
+            void Pintar(int x, int y)
             {
-                throw new Exception($"DrawCircle fuera del canvas en ({centerX}, {centerY})");
-            }
-
-            int half = BrushSize / 2;
-
-            /* Pintar el circulo con centro en la nueva posicin */
-            for(int dx2 = -radius; dx2 <= radius; dx2++)
-            { 
-                for(int dy2 = -radius; dy2 <= radius; dy2++)
+                if (x >= 0 && y >= 0 && x < CanvasSize && y < CanvasSize)
                 {
-                    int distance2 = dx2 * dx2 + dy2 * dy2;
-                    int r2 = radius * radius;
-
-                    if (distance2 <= r2 && distance2 >= r2 - radius)
-                    {
-                        int fx = centerX + dx2;
-                        int fy = centerY + dy2;
-
-                        for (int bx = -half; bx <= half; bx++) 
-                        {
-                            for (int by = -half; by <= half; by++)
-                            {
-                                int px = fx + bx;
-                                int py = fy + by;
-
-                                if (px >= 0 || py >= 0 || px < CanvasSize || py < CanvasSize)
-                                {
-                                    Canvas[px, py] = ColortoInt(BrushColor);
-                                }
-                            }
-                        }   
-                    }
+                    Canvas[x, y] = color;
                 }
             }
-
-            X = centerX;
-            Y = centerY;
-
+            
             Redraw();
         }
 
         public void DrawRectangle(int dx, int dy, int distance, int width, int height)
         {
+            X = X + dx * distance;
+            Y = Y + dy * distance;
 
+            int x0 = X;
+            int y0 = Y;
+
+            int color = ColorMap[BrushColor].ToArgb();
+
+            for(int i = 0; i < width; i++)
+            {
+                Pintar(x0 + i, y0);                         /* Borde superior */
+                Pintar(x0 + i, y0 + (height - 1));          /* Borde inferior */
+            }
+
+            for(int j = 0; j < height; j++)
+            {
+                Pintar(x0, y0 + j);                         /* Borde izquierdo */
+                Pintar(x0 + (width - 1), y0 + j);           /* Borde derecho */
+            }
+
+            void Pintar(int x, int y)
+            {
+                if (x >= 0 && y >= 0 && x < CanvasSize && y < CanvasSize)
+                {
+                    Canvas[x, y] = color;
+                }
+            }
         }
 
         public void Fill()
         {
+            int startX = X;
+            int startY = Y;
+            int targetColor = Canvas[startX, startY];
+            int newColor = ColorMap[BrushColor].ToArgb();
 
+            if (targetColor == newColor) return;
+
+            Queue<(int x, int y)> cola = new();
+            cola.Enqueue((startX, startY));
+
+            while (cola.Count > 0)
+            {
+                var (x, y) = cola.Dequeue();
+
+                if (x >= 0 && Y >= 0 && x < CanvasSize && y < CanvasSize) continue;
+
+                Canvas[x, y] = newColor;
+
+                /* Agregarvecinos */
+                cola.Enqueue((x + 1, y));
+                cola.Enqueue((x - 1, y));
+                cola.Enqueue((x, y + 1));
+                cola.Enqueue((x, y - 1));
+            }
         }
 
         public int ColortoInt(string color)

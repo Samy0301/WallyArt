@@ -152,4 +152,46 @@ namespace WallyArt.sln.instructions
             context.Variables[VarName] = value;
         }
     }
+
+    public class LabelI : Instruction
+    {
+        public string Name;
+
+        public LabelI(string name, int line) : base(line)
+        {
+            Name = name;
+        }
+
+        public override void Execute(Context context)
+        {
+            if (!context.Labels.ContainsKey(Name))
+            {
+                context.Labels[Name] = Line;
+            }
+        }
+    }
+
+    public class GoToI : Instruction
+    {
+        public string Label;
+        public IExpression Condition;
+
+        public GoToI(string label, IExpression condition, int line) : base(line)
+        {
+            Label = label;
+            Condition = condition;
+        }
+
+        public override void Execute(Context context)
+        {
+            if (Condition.Evaluate(context) != 0)
+            {
+                if (!context.Labels.ContainsKey(Label))
+                {
+                    throw new Exception($"Error at line {Line}: The label {Label} wasn't found");
+                }
+                context.NextLine = context.Labels[Label];
+            }
+        }
+    }
 }

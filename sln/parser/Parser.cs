@@ -85,7 +85,7 @@ namespace WallyArt.sln.parser
                 Advance();
                 return val;
             }
-            throw new Exception($"Error at line {Current.Line}: Expected number");
+            throw new Exception($"Error at line {Current.Line}: Expected a number but found this {Current.Value}");
         }
 
         private string ExpectString()
@@ -96,7 +96,18 @@ namespace WallyArt.sln.parser
                 Advance();
                 return val;
             }
-            throw new Exception($"Error at line {Current.Line}: Expected string");
+            throw new Exception($"Error at line {Current.Line}: Expected a string but found this {Current.Value}");
+        }
+
+        private string ExpectIdentifier()
+        {
+            if (Current.Type == TokenType.Identifier)
+            {
+                string val = Current.Value;
+                Advance();
+                return val;
+            }
+            throw new Exception($"Error at line {Current.Line}: Expected a identifier but found this {Current.Value}");
         }
 
         public List<Instruction> Parse()
@@ -210,6 +221,28 @@ namespace WallyArt.sln.parser
                     Expect("(");
                     Expect(")");
                     instructions.Add(new FillI(Current.Line));
+                }
+                else if (Current.Type == TokenType.Identifier && Peek(1).Type == TokenType.EOF)
+                {
+                    string label = Current.Value;
+
+                    if(!Regex.IsMatch(label, "^[a-zA-Z_][\\w\\-]*$"))
+                    {
+                        throw new Exception($"Error at line {Current.Line}: {label} is an ivalid label name");
+                    }
+                    Advance();
+                    instructions.Add(new LabelI(label, Current.Line));
+                }
+                else if (Current.Value == "GoTo")
+                {
+                    Advance();
+                    Expect("[");
+                    string label = ExpectIdentifier();
+                    Expect("]");
+                    Expect("(");
+                    IExpression condition = ParseExpression();
+                    Expect(")");
+                    instructions.Add(new GoToI(label, condition, Current.Line));
                 }
                 else
                 {
