@@ -7,12 +7,12 @@ using WallyArt.sln.context;
 
 namespace WallyArt.sln.expression
 {
-    public interface IExpression
+    public interface IExpression          /* For funtions and numerical or logics operations   This dosent have direct impact o the canvas and have to parse for levels of priority */
     {
         int Evaluate(Context context);
     }
 
-    /* Numeros enteros */
+    /* Numbers */
     public class ConstantExpression : IExpression
     {
         public int Value;
@@ -21,7 +21,7 @@ namespace WallyArt.sln.expression
         public int Evaluate(Context context) => Value; 
     }
 
-    /* Variables ya declaradas por el usuario */
+    /* Variables alredy named for the user */
     public class VariableExpression : IExpression
     {
         public string Name;
@@ -41,8 +41,8 @@ namespace WallyArt.sln.expression
         }
     }
 
-    /* Operaciones aritmeticas */
-    public class AddE : IExpression  /* Suma */
+    /* Arithmetic operatio */                                                   
+    public class AddE : IExpression  /* Sum + */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -59,7 +59,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class SubE : IExpression  /* Resta */
+    public class SubE : IExpression  /* Subtraction - */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -76,7 +76,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class MulE : IExpression  /* Multiplicacion */
+    public class MulE : IExpression  /* Multiplication * */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -93,7 +93,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class DivE : IExpression  /* Division */
+    public class DivE : IExpression  /* Division / */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -117,7 +117,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class ModE : IExpression  /* Modulo */
+    public class ModE : IExpression  /* Module % */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -134,7 +134,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class PowE : IExpression  /* Potencia */
+    public class PowE : IExpression  /* Power ** */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -151,8 +151,8 @@ namespace WallyArt.sln.expression
         }
     }
 
-    /* Operadores de comparacion  Devuelve 1 == true, 0 == false */
-    public class EqualE : IExpression  /* == */
+    /* Comparison operators  Give back 1 == true, 0 == false */
+    public class EqualE : IExpression  /* Equal == */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -169,7 +169,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class GreaterE : IExpression  /* > */
+    public class GreaterE : IExpression  /* Greater than > */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -186,7 +186,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class LessE : IExpression  /* < */
+    public class LessE : IExpression  /* Less than < */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -203,7 +203,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class GreaterEqualE : IExpression  /* >= */
+    public class GreaterEqualE : IExpression  /* Greater Egual >= */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -220,7 +220,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class LessEqualE : IExpression  /* <= */
+    public class LessEqualE : IExpression  /* Less Equal <= */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -237,7 +237,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class NotEqualE : IExpression  /* != */
+    public class NotEqualE : IExpression  /* Diferent != */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -254,8 +254,8 @@ namespace WallyArt.sln.expression
         }
     }
 
-    /* Opradores logicos || y &&   Devuelven 1 == true, 0 == false */
-    public class AndE : IExpression  /* && */
+    /* Logics operators    Give back 1 == true, 0 == false */
+    public class AndE : IExpression  /* And && */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -272,7 +272,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    public class OrE : IExpression  /* || */
+    public class OrE : IExpression  /* Or || */
     {
         public IExpression Left;
         public IExpression Rigth;
@@ -289,7 +289,7 @@ namespace WallyArt.sln.expression
         }
     }
 
-    /* Funciones */
+    /* Funtions    There evaluate here and not in the Context.cs cause their don't have repercution on what happens in the visual context */  
     public class GetActualXE : IExpression
     {
         public int Evaluate(Context context) => context.X;

@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace WallyArt.sln.ast
 {
-    /* Convierte el teto del editor en una lista de tokens */
+    /* Change the text from the editor to a token list */
     public class Lexer
     {
         public string[] lines;
@@ -19,7 +19,7 @@ namespace WallyArt.sln.ast
             lineNumber = 0;
         }
 
-        /* Extrae todos los tokens de todas las lineas */
+        /* Take all tokens from all lines  */
         public  List<Token> Tokenize()
         {
             var tokens = new List<Token>();
@@ -33,7 +33,7 @@ namespace WallyArt.sln.ast
                     continue;
                 }
 
-                /* Separa en partes usando un exprecion regular */
+                /* Curt in parts using a regular expresion */
                 var parts = Regex.Matches(trimeed, "\".*?\"|[a-zA-Z_][\\w\\-]*|-?\\d+|<-|==|<=|>=|!=|\\|\\||&&|\\*\\*|[+\\-*/%()\\[\\],<>]");
 
                 foreach (Match part in parts)
@@ -48,7 +48,7 @@ namespace WallyArt.sln.ast
                     {
                         tokens.Add(new Token(TokenType.String, val.Trim('"'), lineNumber));
                     }
-                    else if (val == "<-" || val == "==" || val == "<=" || val == ">=" || val == "<" || val == ">" || val == "!=" || val == "*" || val == "**" || val == "&&" || val == "||")
+                    else if (val == "<-" || val == "==" || val == "<=" || val == ">=" || val == "<" || val == ">" || val == "!=" || val == "*" || val == "**" || val == "&&" || val == "||" || val == "+" || val == "-" || val == "/" || val == "%")
                     {
                         tokens.Add(new Token(TokenType.Operator, val, lineNumber));
                     }
@@ -67,7 +67,7 @@ namespace WallyArt.sln.ast
                 }
             }
 
-            tokens.Add(new Token(TokenType.EOF, "EOF", lineNumber));  /* Token especial de fin */
+            tokens.Add(new Token(TokenType.EOF, "EOF", lineNumber));  /* Especial token of end */
             return tokens;
         }
         

@@ -6,21 +6,22 @@ using System.Threading.Tasks;
 using WallyArt;
 using WallyArt.sln.parser;
 using WallyArt.sln.expression;
+using System.Drawing;
 
 namespace WallyArt.sln.context
 {
-    /* Mantiene el estado del canvas y maneja la ejecucion visual */
+    /* Mantain the state of canvas and manages the visual context */
     public class Context
     {
-        public int[,] Canvas;                           /* Matriz de canvas*/
-        public int CanvasSize;                          /* Dimencion del canvas (cuadrado) */
-        public int X;                                   /* Posicion actual  de Wally */
+        public int[,] Canvas;                           /* Canvas matrix */
+        public int CanvasSize;                          /* Canvas dimension (square) */
+        public int X;                                   /* Wally's current position */
         public int Y;                                   /* "  "  "  "  "  "  "  "  " */ 
-        public string BrushColor = "Black";             /* Color actual del pincel */
-        public int brushSize = 1;                       /* Tamaño actua del pincel */
-        private PictureBox pictureBox1;                 /* Visual del canvas en From1 */
+        public string BrushColor = "Black";             /* Brush current color */
+        public int brushSize = 1;                       /* Brush current size */
+        private PictureBox pictureBox1;                 /* Canvas visual on the Form1 */
 
-        public Dictionary<string, Color> ColorMap = new Dictionary<string, Color>()
+        public Dictionary<string, Color> ColorMap = new Dictionary<string, Color>()     /* All valid colors */
         {
             ["Red"] = Color.Red,
             ["Blue"] = Color.Blue,
@@ -33,11 +34,11 @@ namespace WallyArt.sln.context
             ["Transparent"] = Color.Transparent,
         };
 
-        public Dictionary<string, int> Variables = new Dictionary<string, int>();
+        public Dictionary<string, int> Variables = new Dictionary<string, int>();    /* Here variables are stored for later use */
 
-        public Dictionary<string, int> Labels = new Dictionary<string, int>();
+        public Dictionary<string, int> Labels = new Dictionary<string, int>();       /* Here labels stored their lines for later access */
 
-        public int NextLine;    /* Controla el cambio de linea */
+        public int NextLine;    /* Control the line jump */
 
         public Context(int size, PictureBox pb)
         {
@@ -47,11 +48,36 @@ namespace WallyArt.sln.context
             Redraw();
         }
 
+        public void Pintar0(int cx, int cy)                 /* Method use for the instructions to paint on the canvas */
+        {
+            Pintar( cx,  cy, BrushSize, ColorMap[BrushColor].ToArgb());
+        }
+
+        public void Pintar(int cx, int cy, int size, int color)    /* Auxiliary method for painting */
+        {
+            int half = size / 2;
+
+            for(int dx = -half; dx <= half; dx++)
+            {
+                for(int dy = -half; dy <= half; dy++)
+                {
+                    int x = cx + dx;
+                    int y = cy + dy;
+
+                    if (x >= 0 && x < CanvasSize && y >= 0 && y < CanvasSize)
+                    {
+                        Canvas[x, y] = color;
+                    }
+                }
+            }
+        }
+
+        /* Here begin the Execute method of instructions */
         public void Spawn(int x, int y)
         {
             if (x < 0 || y < 0 || x >= CanvasSize || y >= CanvasSize)
             {
-                throw new Exception($"Wally fuera del canvas en Spawn({x}, {y})");
+                throw new Exception($"Error: Wally get's out of Canvas in ({x}, {y})");
             }
 
             X = x;
@@ -62,7 +88,7 @@ namespace WallyArt.sln.context
         {
             if (!ColorMap.ContainsKey(color))
             {
-                throw new Exception($"Color invalido ({color}) usa {string.Join(", ", ColorMap.Keys)}");
+                throw new Exception($"Error: Invalid color {color} better use {string.Join(", ", ColorMap.Keys)}");
             }
             BrushColor = color;
         }
@@ -70,143 +96,111 @@ namespace WallyArt.sln.context
         public int BrushSize
         {
             get => brushSize;
-            set => brushSize = Math.Max(1, value % 2 == 0 ? value - 1 : value);
+            set => brushSize = Math.Max(1, value % 2 == 0 ? value - 1 : value);    /* Look the size not to be a par number */
         }
 
          public void DrawLine(int dx, int dy, int dist)
-        {
-            int half = brushSize / 2;
-
-            for (int i = 0; i <= dist; i++)
+         { 
+            for(int i = 1; i < dist; i++)
             {
-                int nx = X + i * dx;
-                int ny = Y + i * dy;
+                Pintar0(X, Y);
 
-                if (nx < 0 || ny < 0 || nx >= CanvasSize || ny >= CanvasSize)
-                {
-                    throw new Exception($"Wally se salio del canvas en DrawLine a ({nx}, {ny})");
-                }
+                X += dx;
+                Y += dy;
 
-                for(int dx2 = -half; dx2 <= half; dx2++)
-                {
-                    for(int dy2 = -half; dy2 <= half; dy2++)
-                    {
-                        int fx = nx + dx2;
-                        int fy = ny + dy2;
-
-                        if (fx >= 0 && fy >= 0 && fx < CanvasSize && fy < CanvasSize)
-                        {
-                            Canvas[fx, fy] = ColortoInt(BrushColor);
-                        }
-                    }
-                }
+                Pintar0(X, Y);
             }
-
-            X += dx * dist;
-            Y += dy * dist;
-
+            X += dx;
+            Y += dy;
             Redraw();
          }
 
         public void DrawCircle(int dx, int dy, int radius)
         {
-            /* Calcular la nueva posicion */
-            int CX = X + dx * radius;
-            int CY = Y + dy * radius;
+            X += dx * radius;
+            Y += dy * radius;
 
-            /* Actualiza la posicion */
-            X = CX;
-            Y = CY;
+            int centerX = X;
+            int centerY = Y;
 
-            int color = ColorMap[BrushColor].ToArgb();
-
-            Pintar(CX, CY - radius);                          /* Aribba */
-            Pintar(CX, CY + radius);                          /* Abajo*/
-            Pintar(CX - radius, CY);                          /* Izquierda */
-            Pintar(CX + radius, CY);                          /* Derecha */
-            Pintar(CX - (radius - 1), CY - (radius - 1));     /* Arriba izquierda */
-            Pintar(CX + (radius - 1), CY - (radius - 1));     /* Arriba derecha */
-            Pintar(CX - (radius - 1), CY + (radius - 1));     /* Abajo izquierda */  
-            Pintar(CX + (radius - 1), CY + (radius - 1));     /* Abajo derecha */
-
-            void Pintar(int x, int y)
+            /* Draw the circular edge with degree pitch (angle) */
+            for(int angle=0; angle < 360; angle++)
             {
-                if (x >= 0 && y >= 0 && x < CanvasSize && y < CanvasSize)
-                {
-                    Canvas[x, y] = color;
-                }
+                double rad = Math.PI * angle / 180.0;
+
+                int px = centerX + (int)Math.Round(radius * Math.Cos(rad));
+                int py = centerY + (int)Math.Round(radius * Math.Sin(rad));
+
+                Pintar0(px, py);
             }
-            
             Redraw();
         }
 
         public void DrawRectangle(int dx, int dy, int distance, int width, int height)
         {
-            X = X + dx * distance;
-            Y = Y + dy * distance;
+            X =+ dx * distance;
+            Y =+ dy * distance;
 
-            int x0 = X;
-            int y0 = Y;
+            int startx = X;
+            int starty = Y;
+            int endx = startx + (width - 1);
+            int endy = starty + (height - 1);
 
-            int color = ColorMap[BrushColor].ToArgb();
+            for(int x = startx; x < endx; x++) Pintar0(x, starty);
+            for (int x = startx; x < endx; x++) Pintar0(x, endy);
+            for (int y = starty; y < endy; y++) Pintar0(startx, y);
+            for(int y = starty; y < endy; y++) Pintar0(endx, y);
 
-            for(int i = 0; i < width; i++)
-            {
-                Pintar(x0 + i, y0);                         /* Borde superior */
-                Pintar(x0 + i, y0 + (height - 1));          /* Borde inferior */
-            }
-
-            for(int j = 0; j < height; j++)
-            {
-                Pintar(x0, y0 + j);                         /* Borde izquierdo */
-                Pintar(x0 + (width - 1), y0 + j);           /* Borde derecho */
-            }
-
-            void Pintar(int x, int y)
-            {
-                if (x >= 0 && y >= 0 && x < CanvasSize && y < CanvasSize)
-                {
-                    Canvas[x, y] = color;
-                }
-            }
+            Redraw();
         }
 
         public void Fill()
         {
-            int startX = X;
-            int startY = Y;
-            int targetColor = Canvas[startX, startY];
-            int newColor = ColorMap[BrushColor].ToArgb();
+            int targetColor = Canvas[X, Y];
 
-            if (targetColor == newColor) return;
+            if (targetColor == ColorMap[BrushColor].ToArgb()) return;
 
-            Queue<(int x, int y)> cola = new();
-            cola.Enqueue((startX, startY));
+            Queue<(int , int)> cola = new Queue<(int, int)>();          /* Use a tail to draw all the neighbors */
+            bool[,] visited = new bool[CanvasSize, CanvasSize];
+            cola.Enqueue((X, Y));
+            visited[X, Y] = true;
 
             while (cola.Count > 0)
             {
                 var (x, y) = cola.Dequeue();
 
-                if (x >= 0 && Y >= 0 && x < CanvasSize && y < CanvasSize) continue;
+                Pintar0(x, y);
 
-                Canvas[x, y] = newColor;
-
-                /* Agregarvecinos */
-                cola.Enqueue((x + 1, y));
-                cola.Enqueue((x - 1, y));
-                cola.Enqueue((x, y + 1));
-                cola.Enqueue((x, y - 1));
+                foreach(var(nx, ny) in Vecinos(x, y))
+                {
+                    if (nx >= 0 && nx < CanvasSize && ny >= 0 && ny < CanvasSize && !visited[nx, ny] && Canvas[nx, ny] == targetColor)
+                    {
+                        visited[nx, ny] = true;
+                        cola.Enqueue((nx, ny));
+                    }
+                }
             }
         }
 
-        public int ColortoInt(string color)
+        private List<(int,int)> Vecinos(int x, int y)            /* Method use by Fill to look the neighbor box */
+        {
+            return new List<(int, int)>
+            {
+                (x + 1, y),
+                (x - 1, y),
+                (x, y + 1),
+                (x, y - 1)
+            };
+        }
+
+        public int ColortoInt(string color)             /* Method for convert words to numbers this way the program understand what a color is */
         {
             return ColorMap.ContainsKey(color) ? ColorMap[color].ToArgb() : Color.Transparent.ToArgb();
         }
 
-        public Color InttoColor(int val) => Color.FromArgb(val);
+        public Color InttoColor(int val) => Color.FromArgb(val);      /* Opposite of ColortoInt */
 
-        public void Redraw()
+        public void Redraw()         /* Method for update the canva on the picturebox */
         {
             Bitmap bmp = new Bitmap(CanvasSize, CanvasSize);
 
@@ -220,7 +214,7 @@ namespace WallyArt.sln.context
 
             Bitmap scaled = new Bitmap(pictureBox1.Width, pictureBox1.Height);
 
-            using (Graphics g = Graphics.FromImage(scaled))
+            using (Graphics g = Graphics.FromImage(scaled))           
             {
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                 g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
@@ -244,7 +238,7 @@ namespace WallyArt.sln.context
             pictureBox1.Image = scaled;
         }
 
-        public void ClearCanvas()
+        public void ClearCanvas()        /* Mehod for the button (Clean) */
         {
             for(int x = 0; x < CanvasSize; x++)
             {

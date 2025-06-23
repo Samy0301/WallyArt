@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WallyArt.sln.ast
 {
-    /* Representa un token individual con su tipo, valor y linea */
+    /* Represent a individual token with type, value and line */
     public class Token
     {
         public TokenType Type;
@@ -21,15 +21,15 @@ namespace WallyArt.sln.ast
         }
     }
 
-    /* Define los tipos de tokens que se pueden recoocer en el lenguaje*/
+    /* Define the types of tokens that the lenguage can recognize */
     public enum TokenType
     {
-        Keyword,       /* Palabras clave como Swap, DrawLine, etc */
-        Identifier,    /* Nombres de variables o etiquetas */
-        Number,        /* Numeros enteros */   
-        String,        /* Cadena de texto entre comillas */
-        Symbol,        /* Caracteres como comas, parentesis, corchetes, etc */
-        Operator,      /* Operadores <, >, ==, etc */
-        EOF            /* Fin del archivo */
+        Keyword,       /* Reserv words like Swap, DrawLine, etc */
+        Identifier,    /* Names of labels or variables */
+        Number,        /* Numbers */   
+        String,        /* Text between "" */
+        Symbol,        /* Symbols like ,, (), [], etc  */
+        Operator,      /* Operators like <, >, ==, etc */
+        EOF            /* File end */
     }
 }

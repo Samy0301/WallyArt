@@ -59,11 +59,13 @@ namespace WallyArt
             
         }
 
+        /* Clean the editor */
         private void New_Click(object sender, EventArgs e)
         {
             richTextBox1.Clear();
         }
 
+        /* Clean the canva */
         private void Clean_Click(object sender, EventArgs e)
         {
             if (context != null)
@@ -72,6 +74,7 @@ namespace WallyArt
             }
         }
 
+        /* Change the size of the canva according to that given by the user */
         private void Size_Click(object sender, EventArgs e)
         {
             try
@@ -86,7 +89,7 @@ namespace WallyArt
 
                 currentCanvasSize = newSize;
                 context = null;
-                DrawGrid(currentCanvasSize);    /* Actualiza el tamaño con el pasado por el usuario */
+                DrawGrid(currentCanvasSize);    /* Change the current size for the one the user gives */
             }
             catch
             {
@@ -94,11 +97,12 @@ namespace WallyArt
             }
         }
 
+        /* Transform the text into draws */
         private void Paint_Click(object sender, EventArgs e)
         {
             try
             {
-                /*Analizar codigo */
+                /* Code analysis  */
                 string code = richTextBox1.Text;
                 Lexer lexer = new Lexer(code);
                 List<Token> tokens = lexer.Tokenize();
@@ -110,29 +114,31 @@ namespace WallyArt
                      context = new Context(currentCanvasSize, pictureBox1);
                 }
 
+                context.brushSize = 1;
+                context.BrushColor = "Black";
 
-                /* Ejecutar instrucciones */
+                /* Instruction execution */
                 int i = 0;
                 while (i < instructions.Count)
                 {
-                    context.NextLine = -1;   /* Reinici el salto */
+                    context.NextLine = -1;   /* Restart jump */
 
-                    instructions[i].Execute(context);    /* Ejecutar una instruccion */
+                    instructions[i].Execute(context);    /* Execute one instruction */
                     if (context.NextLine != -1)
                     {
-                        /* Buscar a que instruccion saltar segun la linea guardada */
+                        /* Finf which instruction to skip according to the saved line */
                         int newPos = instructions.FindIndex(instructions => instructions.Line == context.NextLine);
 
                         if (newPos == -1)
                         {
                             throw new Exception($"Error at line {context.NextLine}: Instruction not found");
                         }
-                        i = newPos;    /* Saltar a esa posicion */
+                        i = newPos;    /* Jump to that posision */
                         
                     }
                     else
                     {
-                        i++;     /* Continuar a la siguiente instruccion normalmente */
+                        i++;     /* Continue to the next instruction normaly */
                     }
                 }
             }
@@ -142,31 +148,35 @@ namespace WallyArt
             }
         }
 
+        /* Import editor text in records .gw and .txt */
         private void Import_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Archivos Salvados (*.saved)|*.saved";
+            openFileDialog.Filter = "Archivos Wally (*.gw, *.txt)|*.gw; *.txt| Todos los archivos (*.*)|*.*";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 richTextBox1.Text = File.ReadAllText(openFileDialog.FileName);
             }
         }
 
+        /* Export editor text in records .gw and .txt */
         private void Export_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Archivos de Texto (*.txt)|*.txt";
+            saveFileDialog.Filter = "Archivos Wally (*.gw, *.txt)|*.gw; *.txt| Todos los archivos (*.*)|*.*";
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 File.WriteAllText(saveFileDialog.FileName, richTextBox1.Text);
             }
         }
 
+        /* Close the program */
         private void Exit_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
+        /* Draw he grid of the canva */
         private void DrawGrid(int gridSize)
         {
             int width = pictureBox1.Width;

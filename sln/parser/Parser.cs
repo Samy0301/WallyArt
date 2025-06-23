@@ -25,19 +25,19 @@ namespace WallyArt.sln.parser
 
         private Token Current => index < tokens.Count ? tokens[index] : tokens[^1];
 
-        private static readonly Dictionary<(int, int), string> DireccionesValidas = new()
+        private static readonly Dictionary<(int, int), string> DireccionesValidas = new()    /* Valid directions */
         {
-            [(-1, -1)] = "diagonal arriba izquierda",
-            [(-1, 0)] = "izquierda",
-            [(-1, 1)] = "diagonal abajo izquierda",
-            [(0, 1)] = "abajo",
-            [(1, 1)] = "diagonal abajo derecha",
-            [(1, 0)] = "derecha",
-            [(1, -1)] = "diagonal arriba derecha",
-            [(0, -1)] = "arriba"
+            [(-1, -1)] = "left and up",
+            [(-1, 0)] = "left",
+            [(-1, 1)] = "left and down",
+            [(0, 1)] = "down",
+            [(1, 1)] = "rigth and down",
+            [(1, 0)] = "rigth",
+            [(1, -1)] = "rigth and up",
+            [(0, -1)] = "up"
         };
 
-        private static readonly HashSet<string> ReservNames = new()
+        private static readonly HashSet<string> ReservNames = new()      /* Reserv words for instructions and funtions */
         {
             "Spawn",
             "Color",
@@ -55,10 +55,13 @@ namespace WallyArt.sln.parser
             "IsCanvasColor"
         };
 
+        /* Give back the token in the current position without move the cursor */
         public Token Peek(int offset = 1) => index + offset < tokens.Count ? tokens[index + offset] : tokens[^1];
 
+        /* Move the cursor to the next token */
         private void Advance() => index++;
 
+        /* Give back true if the current value is {value} */
         private bool Match(string value)
         {
             if (Current.Value == value)
@@ -69,6 +72,7 @@ namespace WallyArt.sln.parser
             return false;
         }
 
+        /* Give back true if value is the expeted */
         private void Expect(string value)
         {
             if (!Match(value))
@@ -77,6 +81,7 @@ namespace WallyArt.sln.parser
             }
         }
 
+        /* Variation of Expect for numbers */
         private int ExpectNumber()
         {
             if (Current.Type == TokenType.Number)
@@ -88,6 +93,7 @@ namespace WallyArt.sln.parser
             throw new Exception($"Error at line {Current.Line}: Expected a number but found this {Current.Value}");
         }
 
+        /* Variation of Expect for words */
         private string ExpectString()
         {
             if (Current.Type == TokenType.String)
@@ -99,6 +105,7 @@ namespace WallyArt.sln.parser
             throw new Exception($"Error at line {Current.Line}: Expected a string but found this {Current.Value}");
         }
 
+        /* Variation of Expect for identifiers */
         private string ExpectIdentifier()
         {
             if (Current.Type == TokenType.Identifier)
@@ -110,7 +117,7 @@ namespace WallyArt.sln.parser
             throw new Exception($"Error at line {Current.Line}: Expected a identifier but found this {Current.Value}");
         }
 
-        public List<Instruction> Parse()
+        public List<Instruction> Parse()             /* Parse for things in Instruction.cs whitout preferense order (well only the variables but for resons of declaration mode) */
         {
             var instructions = new List<Instruction>();
 
@@ -120,13 +127,13 @@ namespace WallyArt.sln.parser
                 {
                     string var = Current.Value;
 
-                    /* Nombre invalido si empieza con - o numero */
+                    /* If begin with - or a number its an invalid variable name */
                     if (char.IsDigit(var[0]) || !char.IsLetter(var[0]))
                     {
                         throw new Exception($"Error at line {Current.Line}: A variable name can't begin whit a number or the symbol -");
                     }
 
-                    /* Nombre invalido si es una palabra reservada */
+                    /* If it's a reserv word then it's an invalid variable name (this is the reason) */
                     if (ReservNames.Contains(var))
                     {
                         throw new Exception($"Error at line {Current.Line}: Can't use the reserved word {var} for name a variable");
@@ -137,7 +144,7 @@ namespace WallyArt.sln.parser
                     IExpression expr = ParseExpression();
                     instructions.Add((new VariableAssignI(var, expr, Current.Line)));
                 }
-                else if (Current.Value == "Spawn")
+                else if (Current.Value == "Spawn")      /* Here begin the instructions */
                 {
                     Advance();
                     Expect("(");
@@ -162,7 +169,7 @@ namespace WallyArt.sln.parser
                     int dx = ExpectNumber();
                     Expect(",");
                     int dy = ExpectNumber();
-                    if (!DireccionesValidas.ContainsKey((dx, dy)))
+                    if (!DireccionesValidas.ContainsKey((dx, dy)))     /* If isn't a valid direction give error */
                     {
                         throw new Exception($"Error at line {Current.Line}: ({dx}, {dy}) is an invalid direction");
                     }
@@ -186,7 +193,7 @@ namespace WallyArt.sln.parser
                     int dx = ExpectNumber();
                     Expect(",");
                     int dy = ExpectNumber();
-                    if (!DireccionesValidas.ContainsKey((dx, dy)))
+                    if (!DireccionesValidas.ContainsKey((dx, dy)))        /* If isn't a valid direction give error */
                     {
                         throw new Exception($"Error at line {Current.Line}: ({dx}, {dy}) is an invalid direction");
                     }
@@ -202,7 +209,7 @@ namespace WallyArt.sln.parser
                     int dx = ExpectNumber();
                     Expect(",");
                     int dy = ExpectNumber();
-                    if (!DireccionesValidas.ContainsKey((dx, dy)))
+                    if (!DireccionesValidas.ContainsKey((dx, dy)))         /* If isn't a valid direction give error */
                     {
                         throw new Exception($"Error at line {Current.Line}: ({dx}, {dy}) is an invalid direction");
                     }
@@ -222,47 +229,48 @@ namespace WallyArt.sln.parser
                     Expect(")");
                     instructions.Add(new FillI(Current.Line));
                 }
-                else if (Current.Type == TokenType.Identifier && Peek(1).Type == TokenType.EOF)
+                else if (Current.Type == TokenType.Identifier && Peek(1).Type == TokenType.EOF)    /* labels  if after the name it's an EOF type then it's a label */
                 {
                     string label = Current.Value;
 
-                    if(!Regex.IsMatch(label, "^[a-zA-Z_][\\w\\-]*$"))
+                    if(!Regex.IsMatch(label, "^[a-zA-Z_][\\w\\-]*$"))       /* Only can match with letters, numbers and the symbol - */
                     {
                         throw new Exception($"Error at line {Current.Line}: {label} is an ivalid label name");
                     }
                     Advance();
                     instructions.Add(new LabelI(label, Current.Line));
                 }
-                else if (Current.Value == "GoTo")
+                else if (Current.Value == "GoTo")       /* Goto */
                 {
                     Advance();
                     Expect("[");
                     string label = ExpectIdentifier();
                     Expect("]");
                     Expect("(");
-                    IExpression condition = ParseExpression();
+                    IExpression condition = ParseExpression();       /* Have to parse first the condition */
                     Expect(")");
                     instructions.Add(new GoToI(label, condition, Current.Line));
                 }
-                else
+                else           /* If there isn't neither of this then I dont know what it's give error*/
                 {
                     throw new Exception($"Error at line {Current.Line}: Unknow expression '{Current.Value}'");
                 }
             }
 
-            if (instructions.Count == 0 || instructions[0] is not SpawnI)
+            if (instructions.Count == 0 || instructions[0] is not SpawnI)      /* Verify that the first instruction always is a Spawn */
             {
                 MessageBox.Show("All valid code must begin whit a Spawn(X, Y) instruction");
             }
 
             int spawns = instructions.Count(instr => instr is SpawnI);
-            if (spawns != 1)
+            if (spawns != 1)                                                  /* Verify that there's only one Spawn instruction */
             {
                 throw new Exception($"Error: You can only use one Spawn instruction, were found {spawns}");
             }
             return instructions;
         }
 
+        /* Here begin the parser for the IExpression.cs it's made in order of presence */
         private IExpression ParseExpression()
         {
             return Parse0();
@@ -358,7 +366,7 @@ namespace WallyArt.sln.parser
             return left;
         }
 
-        private IExpression ParseAtom()
+        private IExpression ParseAtom()     /* Atom it's for funtions */
         {
             
             if (Current.Type == TokenType.Number)

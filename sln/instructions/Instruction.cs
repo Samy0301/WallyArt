@@ -8,7 +8,7 @@ using WallyArt.sln.expression;
 
 namespace WallyArt.sln.instructions
 {
-    public abstract class Instruction
+    public abstract class Instruction             /* For instructions who have impact on the canvas       Variables, labels and the goto are here cause dont have orden of presence in the parser (soso) */
     {
         public int Line;
         public abstract void Execute(Context context);
@@ -19,6 +19,7 @@ namespace WallyArt.sln.instructions
         }
     }
 
+    /* Instructions      This are the only comands that do paint in the canvas */
     public class SpawnI : Instruction
     {
         public int X;
@@ -135,6 +136,8 @@ namespace WallyArt.sln.instructions
         }
     }
 
+    /* Variables     Can be declare in every line but begin and used in the condition of goto or like argument of a funtion or instruction */
+
     public class VariableAssignI : Instruction
     {
         public string VarName;
@@ -153,6 +156,7 @@ namespace WallyArt.sln.instructions
         }
     }
 
+    /* Label     There only funtion is declare a place on the code and can be used in the label part of goto, can be declare in every line but begin */
     public class LabelI : Instruction
     {
         public string Name;
@@ -171,6 +175,7 @@ namespace WallyArt.sln.instructions
         }
     }
 
+    /* Goto    Can be declare in every line but begin only execute when the condition is true otherwise will be treated like a label */
     public class GoToI : Instruction
     {
         public string Label;
