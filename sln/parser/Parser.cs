@@ -229,7 +229,7 @@ namespace WallyArt.sln.parser
                     Expect(")");
                     instructions.Add(new FillI(Current.Line));
                 }
-                else if (Current.Type == TokenType.Identifier && Peek(1).Type == TokenType.EOF)    /* labels  if after the name it's an EOF type then it's a label */
+                else if (Current.Type == TokenType.Identifier )    /* labels  if after the name it's an EOF type then it's a label */
                 {
                     string label = Current.Value;
 

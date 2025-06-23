@@ -111,7 +111,21 @@ namespace WallyArt
 
                 if (context == null)
                 {
-                     context = new Context(currentCanvasSize, pictureBox1);
+                    context = new Context(currentCanvasSize, pictureBox1);
+                }
+
+                context.Labels.Clear();
+
+                foreach(var instr in instructions)
+                {
+                    if(instr is LabelI label)
+                    {
+                        if (context.Labels.ContainsKey(label.Name))
+                        {
+                            throw new Exception($"Error: The label {label} already exist");
+                        }
+                        context.Labels[label.Name] = label.Line;
+                    }
                 }
 
                 context.brushSize = 1;
