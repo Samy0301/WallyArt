@@ -77,7 +77,7 @@ namespace WallyArt.sln.context
         {
             if (x < 0 || y < 0 || x >= CanvasSize || y >= CanvasSize)
             {
-                throw new Exception($"Error: Wally get's out of Canvas in ({x}, {y})");
+                throw new Exception($" Wally get's out of Canvas in ({x}, {y})");
             }
 
             X = x;
@@ -88,7 +88,7 @@ namespace WallyArt.sln.context
         {
             if (!ColorMap.ContainsKey(color))
             {
-                throw new Exception($"Error: Invalid color {color} better use {string.Join(", ", ColorMap.Keys)}");
+                throw new Exception($" Invalid color {color} better use {string.Join(", ", ColorMap.Keys)}");
             }
             BrushColor = color;
         }

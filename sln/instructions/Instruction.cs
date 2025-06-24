@@ -193,7 +193,7 @@ namespace WallyArt.sln.instructions
             {
                 if (!context.Labels.ContainsKey(Label))
                 {
-                    throw new Exception($"Error at line {Line}: The label {Label} wasn't found");
+                    throw new Exception($" Line {Line}: The label {Label} wasn't found");
                 }
                 context.NextLine = context.Labels[Label];
             }

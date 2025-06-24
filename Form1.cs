@@ -122,7 +122,7 @@ namespace WallyArt
                     {
                         if (context.Labels.ContainsKey(label.Name))
                         {
-                            throw new Exception($"Error: The label {label} already exist");
+                            throw new Exception($" The label {label} already exist");
                         }
                         context.Labels[label.Name] = label.Line;
                     }
@@ -145,7 +145,7 @@ namespace WallyArt
 
                         if (newPos == -1)
                         {
-                            throw new Exception($"Error at line {context.NextLine}: Instruction not found");
+                            throw new Exception($" Line {context.NextLine}: Instruction not found");
                         }
                         i = newPos;    /* Jump to that posision */
                         

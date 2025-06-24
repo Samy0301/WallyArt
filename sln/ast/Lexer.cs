@@ -52,17 +52,17 @@ namespace WallyArt.sln.ast
                     {
                         tokens.Add(new Token(TokenType.Operator, val, lineNumber));
                     }
-                    else if ("()".Contains(val) || "[]".Contains(val) || ",".Contains(val))
+                    else if ("(),[]".Contains(val))
                     {
                         tokens.Add(new Token(TokenType.Symbol, val, lineNumber));
                     }
-                    else if (Regex.IsMatch(val, "^[a-zA-Z_]\\w*$"))
+                    else if (Regex.IsMatch(val, @"^[a-zA-Z_][\w\-]*$"))
                     {
                         tokens.Add(new Token(TokenType.Identifier, val, lineNumber));
                     }
                     else
                     {
-                        throw new Exception($"Error at line {lineNumber}: Unknown token '{val}'");
+                        throw new Exception($" Line {lineNumber}: Unknown token '{val}'");
                     }
                 }
             }

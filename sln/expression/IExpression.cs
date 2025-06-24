@@ -35,7 +35,7 @@ namespace WallyArt.sln.expression
         {
             if (!context.Variables.ContainsKey(Name))
             {
-                throw new Exception($"Error: The variable {Name} is not defined");
+                throw new Exception($" The variable {Name} is not defined");
             }
             return context.Variables[Name];
         }
@@ -110,7 +110,7 @@ namespace WallyArt.sln.expression
 
             if (rigthVal == 0)
             {
-                throw new Exception($"Error: You can't divide for 0");
+                throw new Exception($" You can't divide for 0");
             }
 
             return Left.Evaluate(context) / rigthVal;
@@ -326,7 +326,7 @@ namespace WallyArt.sln.expression
         {
             if (!context.ColorMap.ContainsKey(Color))
             {
-                throw new Exception($"Error: The color {Color} does not appear in the Canvas");
+                throw new Exception($" The color {Color} does not appear in the Canvas");
             }
 
             Color target = context.ColorMap[Color];
@@ -369,7 +369,7 @@ namespace WallyArt.sln.expression
         {
             if(!context.ColorMap.ContainsKey(Color))
             {
-                throw new Exception($"Error: The color {Color} is not valid");
+                throw new Exception($" The color {Color} is not valid");
             }
 
             if (Color == context.BrushColor)
@@ -416,7 +416,7 @@ namespace WallyArt.sln.expression
         {
             if (!context.ColorMap.ContainsKey(Color))
             {
-                throw new Exception($"Error: The color {Color} is not valid");
+                throw new Exception($" The color {Color} is not valid");
             }
 
             Color target = context.ColorMap[Color];

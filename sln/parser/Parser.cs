@@ -77,7 +77,7 @@ namespace WallyArt.sln.parser
         {
             if (!Match(value))
             {
-                throw new Exception($"Erroe at line {Current.Line}: Expected a value");
+                throw new Exception($" Line {Current.Line}: Expected a value");
             }
         }
 
@@ -90,7 +90,7 @@ namespace WallyArt.sln.parser
                 Advance();
                 return val;
             }
-            throw new Exception($"Error at line {Current.Line}: Expected a number but found this {Current.Value}");
+            throw new Exception($" Line {Current.Line}: Expected a number but found this {Current.Value}");
         }
 
         /* Variation of Expect for words */
@@ -102,7 +102,7 @@ namespace WallyArt.sln.parser
                 Advance();
                 return val;
             }
-            throw new Exception($"Error at line {Current.Line}: Expected a string but found this {Current.Value}");
+            throw new Exception($" Line {Current.Line}: Expected a string but found this {Current.Value}");
         }
 
         /* Variation of Expect for identifiers */
@@ -114,7 +114,7 @@ namespace WallyArt.sln.parser
                 Advance();
                 return val;
             }
-            throw new Exception($"Error at line {Current.Line}: Expected a identifier but found this {Current.Value}");
+            throw new Exception($" Line {Current.Line}: Expected a identifier but found this {Current.Value}");
         }
 
         public List<Instruction> Parse()             /* Parse for things in Instruction.cs whitout preferense order (well only the variables but for resons of declaration mode) */
@@ -130,13 +130,13 @@ namespace WallyArt.sln.parser
                     /* If begin with - or a number its an invalid variable name */
                     if (char.IsDigit(var[0]) || !char.IsLetter(var[0]))
                     {
-                        throw new Exception($"Error at line {Current.Line}: A variable name can't begin whit a number or the symbol -");
+                        throw new Exception($" Line {Current.Line}: A variable name can't begin whit a number or the symbol -");
                     }
 
                     /* If it's a reserv word then it's an invalid variable name (this is the reason) */
                     if (ReservNames.Contains(var))
                     {
-                        throw new Exception($"Error at line {Current.Line}: Can't use the reserved word {var} for name a variable");
+                        throw new Exception($" Line {Current.Line}: Can't use the reserved word {var} for name a variable");
                     }
 
                     Advance();
@@ -171,7 +171,7 @@ namespace WallyArt.sln.parser
                     int dy = ExpectNumber();
                     if (!DireccionesValidas.ContainsKey((dx, dy)))     /* If isn't a valid direction give error */
                     {
-                        throw new Exception($"Error at line {Current.Line}: ({dx}, {dy}) is an invalid direction");
+                        throw new Exception($" Line {Current.Line}: ({dx}, {dy}) is an invalid direction");
                     }
                     Expect(",");
                     int dist = ExpectNumber();
@@ -193,9 +193,9 @@ namespace WallyArt.sln.parser
                     int dx = ExpectNumber();
                     Expect(",");
                     int dy = ExpectNumber();
-                    if (!DireccionesValidas.ContainsKey((dx, dy)))        /* If isn't a valid direction give error */
+                    if (!DireccionesValidas.ContainsKey((dx, dy)))      /* If isn't a valid direction give error */
                     {
-                        throw new Exception($"Error at line {Current.Line}: ({dx}, {dy}) is an invalid direction");
+                        throw new Exception($" Line {Current.Line}: ({dx}, {dy}) is an invalid direction");
                     }
                     Expect(",");
                     int radius = ExpectNumber();
@@ -211,7 +211,7 @@ namespace WallyArt.sln.parser
                     int dy = ExpectNumber();
                     if (!DireccionesValidas.ContainsKey((dx, dy)))         /* If isn't a valid direction give error */
                     {
-                        throw new Exception($"Error at line {Current.Line}: ({dx}, {dy}) is an invalid direction");
+                        throw new Exception($" Line {Current.Line}: ({dx}, {dy}) is an invalid direction");
                     }
                     Expect(",");
                     int distance = ExpectNumber();
@@ -229,17 +229,6 @@ namespace WallyArt.sln.parser
                     Expect(")");
                     instructions.Add(new FillI(Current.Line));
                 }
-                else if (Current.Type == TokenType.Identifier )    /* labels  if after the name it's an EOF type then it's a label */
-                {
-                    string label = Current.Value;
-
-                    if(!Regex.IsMatch(label, "^[a-zA-Z_][\\w\\-]*$"))       /* Only can match with letters, numbers and the symbol - */
-                    {
-                        throw new Exception($"Error at line {Current.Line}: {label} is an ivalid label name");
-                    }
-                    Advance();
-                    instructions.Add(new LabelI(label, Current.Line));
-                }
                 else if (Current.Value == "GoTo")       /* Goto */
                 {
                     Advance();
@@ -251,9 +240,15 @@ namespace WallyArt.sln.parser
                     Expect(")");
                     instructions.Add(new GoToI(label, condition, Current.Line));
                 }
+                else if (Current.Type == TokenType.Identifier && Regex.IsMatch(Current.Value, @"^[a-zA-Z_][\w\-]*$") && !ReservNames.Contains(Current.Value))   /* labels  if the name is valid and not an reserv word then it's a label */
+                {
+                    string label = Current.Value;
+                    Advance();
+                    instructions.Add(new LabelI(label, Current.Line));
+                }
                 else           /* If there isn't neither of this then I dont know what it's give error*/
                 {
-                    throw new Exception($"Error at line {Current.Line}: Unknow expression '{Current.Value}'");
+                    throw new Exception($" Line {Current.Line}: Unknow expression '{Current.Value}'");
                 }
             }
 
@@ -265,185 +260,276 @@ namespace WallyArt.sln.parser
             int spawns = instructions.Count(instr => instr is SpawnI);
             if (spawns != 1)                                                  /* Verify that there's only one Spawn instruction */
             {
-                throw new Exception($"Error: You can only use one Spawn instruction, were found {spawns}");
+                throw new Exception($" You can only use one Spawn instruction, were found {spawns}");
             }
             return instructions;
         }
 
         /* Here begin the parser for the IExpression.cs it's made in order of presence */
-        private IExpression ParseExpression()
+       private IExpression? ParseExpression()
         {
-            return Parse0();
+            return ParseBoolLV1(null);
         }
 
-        private IExpression Parse0()
+        private IExpression? ParseBoolLV1(IExpression? left)
         {
-            IExpression left = ParseAnd();
-            while (Match("||"))
+            IExpression? newleft = ParseBoolLV2(left);
+            return ParseBoolLV1_(newleft);
+        }
+
+        private IExpression? ParseBoolLV1_(IExpression? left)
+        {
+            if (left == null) return null;
+            if (Match("||"))
             {
                 Advance();
-                IExpression rigth = ParseAnd();
-                left = new OrE(left, rigth);
+                IExpression? rigth = ParseBoolLV2(null);
+                if(rigth == null) throw new Exception($" Line {Current.Line}: Expect an expression after '||' ");
+                return ParseBoolLV1_(new OrE(left, rigth));
             }
             return left;
         }
 
-        private IExpression ParseAnd()
+        private IExpression? ParseBoolLV2(IExpression? left)
         {
-            IExpression left = ParseComparison();
-            while (Match("&&"))
+            IExpression? newleft = ParseComparison(null);
+            return ParseBoolLV2_(newleft);
+        }
+
+        private IExpression? ParseBoolLV2_(IExpression? left)
+        {
+            if (left == null) return null;
+            if (Match("&&"))
             {
                 Advance();
-                IExpression rigth = ParseComparison();
-                left = new AndE(left, rigth);
+                IExpression? rigth = ParseComparison(null);
+                if (rigth == null) throw new Exception($" Line{Current.Line}: Expect an expression after '&&'");
+                return ParseBoolLV2(new AndE(left, rigth));
             }
             return left;
         }
 
-        private IExpression ParseComparison()
+        private IExpression? ParseComparison(IExpression? left)
         {
-            IExpression left = ParseAddSub();
-            while (Match("==") || Match("!=") || Match(">") || Match("<") || Match(">=") || Match("<="))
+            IExpression? leftexpr = ParseNumericLV1(null);
+            if (leftexpr == null) return null;
+            return ParseComparison_(leftexpr);
+        }
+
+        private IExpression? ParseComparison_(IExpression? left)
+        {
+            if(Match("==") || Match("!=") || Match("<=") || Match(">=") || Match("<") || Match(">"))
             {
                 string op = Current.Value;
                 Advance();
-                IExpression rigth = ParseAddSub();
+                IExpression? rigth = ParseNumericLV1(null);
+                if (rigth == null) throw new Exception($" Line {Current.Line}: Ecpect an expression after '{op}'");
 
-                left = op switch
+                return op switch
                 {
                     "==" => new EqualE(left, rigth),
                     "!=" => new NotEqualE(left, rigth),
-                    ">" => new GreaterE(left, rigth),
-                    "<" => new LessE(left, rigth),
-                    ">=" => new GreaterEqualE(left, rigth),
                     "<=" => new LessEqualE(left, rigth),
-                    _ => throw new Exception ($"Error: Unrecognized operator {op}")
+                    ">=" => new GreaterEqualE(left, rigth),
+                    "<" => new LessE(left, rigth),
+                    ">" => new GreaterE(left, rigth),
+                    _ => left
                 };
             }
             return left;
         }
 
-        private IExpression ParseAddSub()
+        public IExpression? ParseNumericLV1(IExpression? left)
         {
-            IExpression left = ParseMulDivMod();
-            while (Match("+") || Match("-"))
-            {
-                string op = Current.Value;
-                Advance();
-                IExpression rigth = ParseMulDivMod();
+            IExpression? newleft = ParseNumericLV2(left);
+            return ParseNumericLV1_(newleft);
+        }
 
-                left = op == "+" ? new AddE(left, rigth) 
-                     : new SubE(left, rigth);
-            }
+        private IExpression? ParseNumericLV1_(IExpression? left)
+        {
+            if (left == null) return null;
+            IExpression? exp = ParseAdd(left);
+            if (exp != null) return ParseNumericLV1_(exp);
+            exp = ParseSub(left);
+            if (exp != null) return ParseNumericLV1_(exp);
             return left;
         }
 
-        private IExpression ParseMulDivMod()
+        private IExpression? ParseNumericLV2(IExpression? left)
         {
-            IExpression left = ParsePower();
-            while (Match("*") || Match("/") || Match("%"))
-            {
-                string op = Current.Value;
-                Advance();
-                IExpression rigth = ParsePower();
+            IExpression newleft = ParseNumericLV3(left);
+            return ParseNumericLV2_(newleft);
+        }
 
-                left = op == "*" ? new MulE(left, rigth)
-                     : op == "/" ? new DivE(left, rigth)
-                     : new ModE(left, rigth);
-            }
+        private IExpression? ParseNumericLV2_(IExpression? left)
+        {
+            if (left == null) return null;
+            IExpression? exp = ParseMul(left);
+            if (exp != null) return ParseNumericLV2_(exp);
+            exp = ParseDiv(left);
+            if(exp != null) return ParseNumericLV2_(exp);
+            exp = ParseMod(left);
+            if(exp != null) return ParseNumericLV2_(exp);
             return left;
         }
 
-        private IExpression ParsePower()
+        private IExpression? ParseNumericLV3(IExpression? left)
         {
-            IExpression left = ParseAtom();
-            while (Match("**"))
-            {
-                Advance();
-                IExpression rigth = ParseAtom();
-                left = new PowE(left, rigth);
-            }
-            return left;
+            IExpression? exp = ParsePow(left);
+            if(exp != null) return exp;
+            exp = ParseNumber();
+            if (exp != null) return exp;
+            exp = ParseVar();
+            if (exp != null) return exp;
+            exp = ParseFuntion();
+            if (exp != null) return exp;
+            return null;
         }
 
-        private IExpression ParseAtom()     /* Atom it's for funtions */
+        private IExpression? ParseAdd(IExpression? left)
         {
-            
-            if (Current.Type == TokenType.Number)
-            {
-                int val = int.Parse(Current.Value);
-                Advance();
-                return new ConstantExpression(val);
-            }
-            else if (Current.Type == TokenType.Identifier)
-            {
-                string name = Current.Value;
-                Advance();
+            if (left == null || !Match("+")) return null;
+            Advance();
+            IExpression? rigth = ParseNumericLV2(null);
+            if (rigth == null) return null;
+            return new AddE(left, rigth);
+        }
 
-                if (name == "GetActualX")
-                {
-                    Expect("(");
-                    Expect(")");
-                    return new GetActualXE();
-                }
-                else if (name == "GetActualY")
-                {
-                    Expect("(");
-                    Expect(")");
-                    return new GetActualYE();
-                }
-                else if (name == "GetCanvasSize")
-                {
-                    Expect("(");
-                    Expect(")");
-                    return new GetCanvasSizeE();
-                }
-                else if (name == "GetColorCount")
-                {
-                    Expect("(");
-                    string color = ExpectString();
-                    Expect(",");
-                    int x1 = ExpectNumber();
-                    Expect(",");
-                    int y1 = ExpectNumber();
-                    Expect(",");
-                    int x2 = ExpectNumber();
-                    Expect(",");
-                    int y2 = ExpectNumber();
-                    Expect(")");
-                    return new GetColorCountE(color, x1, y1, x2, y2);
-                }
-                else if (name == "IsBrushColor")
-                {
-                    Expect("(");
-                    string color = ExpectString();
-                    Expect(")");
-                    return new IsBrushColorE(color);
-                }
-                else if (name == "IsBrushSize")
-                {
-                    Expect("(");
-                    int size = ExpectNumber();
-                    Expect(")");
-                    return new IsBrushSizeE(size);
-                }
-                else if (name == "IsCanvasColor")
-                {
-                    Expect("(");
-                    string color = ExpectString();
-                    Expect(",");
-                    int vertical = ExpectNumber();
-                    Expect(",");
-                    int horizontal = ExpectNumber();
-                    Expect(")");
-                    return new IsCanvasColorE(color, vertical, horizontal);
-                }
-                else
-                {
-                    return new VariableExpression(name);
-                }
+        private IExpression? ParseSub(IExpression? left)
+        {
+            if (left == null || !Match("-")) return null;
+            Advance();
+            IExpression? rigth = ParseNumericLV2(null);
+            if (rigth == null) return null;
+            return new SubE(left, rigth);
+        }
+
+        private IExpression? ParseMul(IExpression? left)
+        {
+            if (left == null || !Match("*")) return null;
+            Advance();
+            IExpression? rigth = ParseNumericLV3(null);
+            if (rigth == null) return null;
+            return new MulE(left, rigth);
+        }
+
+        private IExpression? ParseDiv(IExpression? left)
+        {
+            if (left == null || !Match("/")) return null;
+            Advance();
+            IExpression? rigth = ParseNumericLV3(null);
+            if (rigth == null) return null;
+            return new DivE(left, rigth);
+        }
+
+        private IExpression? ParseMod(IExpression? left)
+        {
+            if (left == null || !Match("%")) return null;
+            Advance();
+            IExpression? rigth = ParseNumericLV3(null);
+            if (rigth == null) return null;
+            return new ModE(left, rigth);
+        }
+
+        private IExpression? ParsePow(IExpression? left)
+        {
+            if (left == null) left = ParseAtom();
+            if (!Match("**")) return null;
+            Advance();
+            IExpression? rigth = ParseAtom();
+            if (rigth == null) return null;
+            return new PowE(left, rigth);
+        }
+
+        private IExpression? ParseNumber()
+        {
+            if (Current.Type != TokenType.Number) return null;
+            int val = int.Parse(Current.Value);
+            Advance();
+            return new ConstantExpression(val);
+        }
+
+        private IExpression? ParseVar()
+        {
+            if(Current.Type != TokenType.Identifier) return null;
+            string name = Current.Value;
+            Advance();
+            return new VariableE(name);
+        }
+
+        private IExpression? ParseFuntion()
+        {
+            if (Current.Type != TokenType.Identifier) return null;
+            string name = Current.Value;
+            if (Peek().Value != "(") return null;
+            Advance();
+
+            if (name == "GetActualX")
+            {
+                Expect("(");
+                Expect(")");
+                return new GetActualXE();
             }
-            throw new Exception($"Error at line {Current.Line}: Invalid expression"); 
+            else if (name == "GetActualY")
+            {
+                Expect("(");
+                Expect(")");
+                return new GetActualYE();
+            }
+            else if (name == "GetCanvasSize")
+            {
+                Expect("(");
+                Expect(")");
+                return new GetCanvasSizeE();
+            }
+            else if (name == "GetColorCount")
+            {
+                Expect("(");
+                string color = ExpectString();
+                Expect(",");
+                int x1 = ExpectNumber();
+                Expect(",");
+                int y1 = ExpectNumber();
+                Expect(",");
+                int x2 = ExpectNumber();
+                Expect(",");
+                int y2 = ExpectNumber();
+                Expect(")");
+                return new GetColorCountE(color, x1, y1, x2, y2);
+            }
+            else if (name == "IsBrushColor")
+            {
+                Expect("(");
+                string color = ExpectString();
+                Expect(")");
+                return new IsBrushColorE(color);
+            }
+            else if (name == "IsBrushSize")
+            {
+                Expect("(");
+                int size = ExpectNumber();
+                Expect(")");
+                return new IsBrushSizeE(size);
+            }
+            else if (name == "IsCanvasColor")
+            {
+                Expect("(");
+                string color = ExpectString();
+                Expect(",");
+                int vertical = ExpectNumber();
+                Expect(",");
+                int horizontal = ExpectNumber();
+                Expect(")");
+                return new IsCanvasColorE(color, vertical, horizontal);
+            }
+            else
+            {
+                return new VariableE(name);
+            }
+        }
+        private IExpression ParseAtom()     
+        {
+            return ParseNumber() ?? ParseVar() ?? ParseFuntion();
         }
     }
 }
