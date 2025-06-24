@@ -52,6 +52,10 @@ namespace WallyArt.sln.ast
                     {
                         tokens.Add(new Token(TokenType.Operator, val, lineNumber));
                     }
+                    else if ("+-*/%".Contains(val))
+                    {
+                        tokens.Add(new Token(TokenType.Operator, val, lineNumber));
+                    }
                     else if ("(),[]".Contains(val))
                     {
                         tokens.Add(new Token(TokenType.Symbol, val, lineNumber));

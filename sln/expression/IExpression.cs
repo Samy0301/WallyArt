@@ -18,15 +18,15 @@ namespace WallyArt.sln.expression
         public int Value;
         public ConstantExpression(int value) => Value = value;
 
-        public int Evaluate(Context context) => Value; 
+        public int Evaluate(Context context) => Value;
     }
 
     /* Variables alredy named for the user */
-    public class VariableExpression : IExpression
+    public class VariableE : IExpression
     {
         public string Name;
 
-        public VariableExpression(string name)
+        public VariableE(string name)
         {
             Name = name;
         }
@@ -55,7 +55,7 @@ namespace WallyArt.sln.expression
 
         public int Evaluate(Context context)
         {
-            return Left.Evaluate(context) + Rigth.Evaluate(context);
+            return Left.Evaluate(context) + Rigth.Evaluate(context); 
         }
     }
 

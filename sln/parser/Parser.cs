@@ -141,8 +141,10 @@ namespace WallyArt.sln.parser
 
                     Advance();
                     Expect("<-");
-                    IExpression expr = ParseExpression();
+                    IExpression? expr = ParseExpression();
+                    if(Current.Type!=TokenType.EOF) throw new Exception($" Line {Current.Line}: no se lee completo se quedo en {Current.Value}");
                     instructions.Add((new VariableAssignI(var, expr, Current.Line)));
+                    MessageBox.Show($" valor actual {Current.Value}");
                 }
                 else if (Current.Value == "Spawn")      /* Here begin the instructions */
                 {
@@ -268,7 +270,7 @@ namespace WallyArt.sln.parser
         /* Here begin the parser for the IExpression.cs it's made in order of presence */
        private IExpression? ParseExpression()
         {
-            return ParseBoolLV1(null);
+            return ParseBoolLV1(ParseAtom());
         }
 
         private IExpression? ParseBoolLV1(IExpression? left)
@@ -283,7 +285,7 @@ namespace WallyArt.sln.parser
             if (Match("||"))
             {
                 Advance();
-                IExpression? rigth = ParseBoolLV2(null);
+                IExpression? rigth = ParseBoolLV2(ParseAtom());
                 if(rigth == null) throw new Exception($" Line {Current.Line}: Expect an expression after '||' ");
                 return ParseBoolLV1_(new OrE(left, rigth));
             }
@@ -292,7 +294,7 @@ namespace WallyArt.sln.parser
 
         private IExpression? ParseBoolLV2(IExpression? left)
         {
-            IExpression? newleft = ParseComparison(null);
+            IExpression? newleft = ParseComparison(left);
             return ParseBoolLV2_(newleft);
         }
 
@@ -302,7 +304,7 @@ namespace WallyArt.sln.parser
             if (Match("&&"))
             {
                 Advance();
-                IExpression? rigth = ParseComparison(null);
+                IExpression? rigth = ParseComparison(ParseAtom());
                 if (rigth == null) throw new Exception($" Line{Current.Line}: Expect an expression after '&&'");
                 return ParseBoolLV2(new AndE(left, rigth));
             }
@@ -311,7 +313,7 @@ namespace WallyArt.sln.parser
 
         private IExpression? ParseComparison(IExpression? left)
         {
-            IExpression? leftexpr = ParseNumericLV1(null);
+            IExpression? leftexpr = left ?? ParseNumericLV1(ParseAtom());
             if (leftexpr == null) return null;
             return ParseComparison_(leftexpr);
         }
@@ -322,7 +324,7 @@ namespace WallyArt.sln.parser
             {
                 string op = Current.Value;
                 Advance();
-                IExpression? rigth = ParseNumericLV1(null);
+                IExpression? rigth = ParseNumericLV1(ParseAtom());
                 if (rigth == null) throw new Exception($" Line {Current.Line}: Ecpect an expression after '{op}'");
 
                 return op switch
@@ -388,45 +390,50 @@ namespace WallyArt.sln.parser
 
         private IExpression? ParseAdd(IExpression? left)
         {
-            if (left == null || !Match("+")) return null;
+            if (left == null) return null;
+            if (!Match("+")) return null;
             Advance();
-            IExpression? rigth = ParseNumericLV2(null);
+            IExpression? rigth = ParseNumericLV2(ParseAtom());
             if (rigth == null) return null;
             return new AddE(left, rigth);
         }
 
         private IExpression? ParseSub(IExpression? left)
         {
-            if (left == null || !Match("-")) return null;
+            if (left == null) return null;
+            if (!Match("-")) return null;
             Advance();
-            IExpression? rigth = ParseNumericLV2(null);
+            IExpression? rigth = ParseNumericLV2(ParseAtom());
             if (rigth == null) return null;
             return new SubE(left, rigth);
         }
 
         private IExpression? ParseMul(IExpression? left)
         {
-            if (left == null || !Match("*")) return null;
+            if (left == null) return null;
+            if (!Match("*")) return null;
             Advance();
-            IExpression? rigth = ParseNumericLV3(null);
+            IExpression? rigth = ParseNumericLV3(ParseAtom());
             if (rigth == null) return null;
             return new MulE(left, rigth);
         }
 
         private IExpression? ParseDiv(IExpression? left)
         {
-            if (left == null || !Match("/")) return null;
+            if (left == null) return null;
+            if (!Match("/")) return null;
             Advance();
-            IExpression? rigth = ParseNumericLV3(null);
+            IExpression? rigth = ParseNumericLV3(ParseAtom());
             if (rigth == null) return null;
             return new DivE(left, rigth);
         }
 
         private IExpression? ParseMod(IExpression? left)
         {
-            if (left == null || !Match("%")) return null;
+            if (left == null) return null;
+            if (!Match("%")) return null;
             Advance();
-            IExpression? rigth = ParseNumericLV3(null);
+            IExpression? rigth = ParseNumericLV3(ParseAtom());
             if (rigth == null) return null;
             return new ModE(left, rigth);
         }
@@ -434,10 +441,10 @@ namespace WallyArt.sln.parser
         private IExpression? ParsePow(IExpression? left)
         {
             if (left == null) left = ParseAtom();
-            if (!Match("**")) return null;
+            if (!Match("**")) return left;
             Advance();
             IExpression? rigth = ParseAtom();
-            if (rigth == null) return null;
+            if (rigth == null) return left;           
             return new PowE(left, rigth);
         }
 
@@ -516,11 +523,11 @@ namespace WallyArt.sln.parser
                 Expect("(");
                 string color = ExpectString();
                 Expect(",");
-                int vertical = ExpectNumber();
+                int vertical = ExpectNumber(); 
                 Expect(",");
                 int horizontal = ExpectNumber();
                 Expect(")");
-                return new IsCanvasColorE(color, vertical, horizontal);
+                return new IsCanvasColorE(color, vertical, horizontal); 
             }
             else
             {
