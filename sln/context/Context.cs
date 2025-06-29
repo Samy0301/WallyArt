@@ -136,20 +136,34 @@ namespace WallyArt.sln.context
             Redraw();
         }
 
-        public void DrawRectangle(int dx, int dy, int distance, int width, int height)
+        public void DrawRectangle(int dirX, int dirY, int distance, int width, int height)
         {
-            X =+ dx * distance;
-            Y =+ dy * distance;
+            // Mover a la nueva posición (centro del rectángulo)
+            X += dirX * distance;
+            Y += dirY * distance;
 
-            int startx = X;
-            int starty = Y;
-            int endx = startx + (width - 1);
-            int endy = starty + (height - 1);
+            int halfWidth = width / 2;
+            int halfHeight = height / 2;
 
-            for(int x = startx; x < endx; x++) Pintar0(x, starty);
-            for (int x = startx; x < endx; x++) Pintar0(x, endy);
-            for (int y = starty; y < endy; y++) Pintar0(startx, y);
-            for(int y = starty; y < endy; y++) Pintar0(endx, y);
+            // Calcular límites exactos del rectángulo
+            int left = X - halfWidth;
+            int right = X + (width % 2 == 0 ? halfWidth - 1 : halfWidth);
+            int top = Y - halfHeight;
+            int bottom = Y + (height % 2 == 0 ? halfHeight - 1 : halfHeight);
+
+            // Pintar línea superior e inferior
+            for (int x = left; x <= right; x++)
+            {
+                Pintar0(x, top);
+                Pintar0(x, bottom);
+            }
+
+            // Pintar los laterales (sin repetir esquinas)
+            for (int y = top + 1; y < bottom; y++)
+            {
+                Pintar0(left, y);
+                Pintar0(right, y);
+            }
 
             Redraw();
         }
@@ -180,6 +194,7 @@ namespace WallyArt.sln.context
                     }
                 }
             }
+            Redraw();
         }
 
         private List<(int,int)> Vecinos(int x, int y)            /* Method use by Fill to look the neighbor box */
