@@ -82,13 +82,17 @@ namespace WallyArt.sln.parser
         }
 
         /* Variation of Expect for numbers */
-        private int ExpectNumber()
+        private IExpression ExpectNumberOrVariable()
         {
             if (Current.Type == TokenType.Number)
             {
-                int val = int.Parse(Current.Value);
+                var val = new ConstantExpression(int.Parse(Current.Value));
                 Advance();
                 return val;
+            }
+            else if(Current.Type == TokenType.Identifier)
+            {
+                return new VariableE(Current.Value);
             }
             throw new Exception($" Line {Current.Line}: Expected a number but found this {Current.Value}");
         }
@@ -132,7 +136,7 @@ namespace WallyArt.sln.parser
                     {
                         throw new Exception($" Line {Current.Line}: A variable name can't begin whit a number or the symbol -");
                     }
-
+                    
                     /* If it's a reserv word then it's an invalid variable name (this is the reason) */
                     if (ReservNames.Contains(var))
                     {
@@ -148,9 +152,9 @@ namespace WallyArt.sln.parser
                 {
                     Advance();
                     Expect("(");
-                    int x = ExpectNumber();
+                    IExpression x = ExpectNumberOrVariable();
                     Expect(",");
-                    int y = ExpectNumber();
+                    IExpression y = ExpectNumberOrVariable();
                     Expect(")");
                     instructions.Add(new SpawnI(x, y, Current.Line));
                 }
@@ -166,15 +170,15 @@ namespace WallyArt.sln.parser
                 {
                     Advance();
                     Expect("(");
-                    int dx = ExpectNumber();
+                    IExpression dx = ExpectNumberOrVariable();
                     Expect(",");
-                    int dy = ExpectNumber();
+                    IExpression dy = ExpectNumberOrVariable();
                     if (!DireccionesValidas.ContainsKey((dx, dy)))     /* If isn't a valid direction give error */
                     {
                         throw new Exception($" Line {Current.Line}: ({dx}, {dy}) is an invalid direction");
                     }
                     Expect(",");
-                    int dist = ExpectNumber();
+                    IExpression dist = ExpectNumberOrVariable();
                     Expect(")");
                     instructions.Add(new DrawLineI(dx, dy, dist, Current.Line));
                 }
@@ -182,7 +186,7 @@ namespace WallyArt.sln.parser
                 {
                     Advance();
                     Expect("(");
-                    int k = ExpectNumber();
+                    IExpression k = ExpectNumberOrVariable();
                     Expect(")");
                     instructions.Add(new SizeI(k, Current.Line));
                 }
@@ -190,15 +194,15 @@ namespace WallyArt.sln.parser
                 {
                     Advance();
                     Expect("(");
-                    int dx = ExpectNumber();
+                    IExpression dx = ExpectNumberOrVariable();
                     Expect(",");
-                    int dy = ExpectNumber();
+                    IExpression dy = ExpectNumberOrVariable();
                     if (!DireccionesValidas.ContainsKey((dx, dy)))      /* If isn't a valid direction give error */
                     {
                         throw new Exception($" Line {Current.Line}: ({dx}, {dy}) is an invalid direction");
                     }
                     Expect(",");
-                    int radius = ExpectNumber();
+                    IExpression radius = ExpectNumberOrVariable();
                     Expect(")");
                     instructions.Add(new DrawCircleI(dx, dy, radius, Current.Line));
                 }
@@ -206,19 +210,19 @@ namespace WallyArt.sln.parser
                 {
                     Advance();
                     Expect("(");
-                    int dx = ExpectNumber();
+                    IExpression dx = ExpectNumberOrVariable();
                     Expect(",");
-                    int dy = ExpectNumber();
+                    IExpression dy = ExpectNumberOrVariable();
                     if (!DireccionesValidas.ContainsKey((dx, dy)))         /* If isn't a valid direction give error */
                     {
                         throw new Exception($" Line {Current.Line}: ({dx}, {dy}) is an invalid direction");
                     }
                     Expect(",");
-                    int distance = ExpectNumber();
+                    IExpression distance = ExpectNumberOrVariable();
                     Expect(",");
-                    int width = ExpectNumber();
+                    IExpression width = ExpectNumberOrVariable();
                     Expect(",");
-                    int height = ExpectNumber();
+                    IExpression height = ExpectNumberOrVariable();
                     Expect(")");
                     instructions.Add(new DrawRectangleI(dx, dy, distance, width, height, Current.Line));
                 }
@@ -248,7 +252,7 @@ namespace WallyArt.sln.parser
                 }
                 else           /* If there isn't neither of this then I dont know what it's give error*/
                 {
-                    throw new Exception($" Line {Current.Line}: Unknow expression '{Current.Value}'");
+                    throw new Exception($" Line {Current.Line}: Unknow instruction '{Current.Value}'");
                 }
             }
 
@@ -306,15 +310,16 @@ namespace WallyArt.sln.parser
         {
             var output = new Stack<IExpression>();
             var operators = new Stack<string>();
+            int expressionLine = Current.Line;
 
-            while (Current.Type != TokenType.EOF && Current.Value != ")" && Current.Value != "]")
+            while (Current.Type != TokenType.EOF && Current.Value != ")" && Current.Value != "]" && Current.Line == expressionLine)
             {
-                if (Current.Type == TokenType.Number)
+                if (Current.Value == ",")
                 {
-                    output.Push(new ConstantExpression(int.Parse(Current.Value)));
                     Advance();
+                    continue;
                 }
-                else if (Current.Type == TokenType.Number)
+                if (Current.Type == TokenType.Number)
                 {
                     output.Push(new ConstantExpression(int.Parse(Current.Value)));
                     Advance();
@@ -323,6 +328,7 @@ namespace WallyArt.sln.parser
                 {
                     var expr = TryParseFuntionOrVariable();
                     output.Push(expr);
+                    Advance();
                 }
                 else if (Current.Type == TokenType.Operator && Operators.ContainsKey(Current.Value))
                 {
@@ -367,7 +373,7 @@ namespace WallyArt.sln.parser
 
             while (operators.Count > 0)
             {
-                if (operators.Pop() == "(") throw new Exception($" Line {Current.Line}: Mismatched parentheses");
+                if (operators.Peek() == "(") throw new Exception($" Line {Current.Line}: Mismatched parentheses");
                 ApplyOperator(operators.Pop(), output);
             }
 
@@ -417,13 +423,13 @@ namespace WallyArt.sln.parser
                 Expect("(");
                 string color = ExpectString();
                 Expect(",");
-                int X1 = ExpectNumber();
+                IExpression X1 = ExpectNumberOrVariable();
                 Expect(",");
-                int Y1 = ExpectNumber();
+                IExpression Y1 = ExpectNumberOrVariable();
                 Expect(",");
-                int X2 = ExpectNumber();
+                IExpression X2 = ExpectNumberOrVariable();
                 Expect(",");
-                int Y2 = ExpectNumber();
+                IExpression Y2 = ExpectNumberOrVariable();
                 Expect(")");
                 return new GetColorCountE(color, X1, Y1, X2, Y2);
             }
@@ -439,7 +445,7 @@ namespace WallyArt.sln.parser
             {
                 Advance();
                 Expect("(");
-                int size = ExpectNumber();
+                IExpression size = ExpectNumberOrVariable();
                 Expect(")");
                 return new IsBrushSizeE(size);
             }
@@ -449,17 +455,17 @@ namespace WallyArt.sln.parser
                 Expect("(");
                 string color = ExpectString();
                 Expect(",");
-                int x = ExpectNumber();
+                IExpression x = ExpectNumberOrVariable();
                 Expect(",");
-                int y = ExpectNumber();
+                IExpression y = ExpectNumberOrVariable();
                 Expect(")");
                 return new IsCanvasColorE(color, x, y);
             }
             else
             {
-                throw new Exception($" Line {Current.Line}: Unknown funtion {name}");
+                return new VariableE(name);
             }
-            return new VariableE(name);
+
         }
     }
 }

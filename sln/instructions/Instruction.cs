@@ -22,10 +22,10 @@ namespace WallyArt.sln.instructions
     /* Instructions      This are the only comands that do paint in the canvas */
     public class SpawnI : Instruction
     {
-        public int X;
-        public int Y;
+        public IExpression X;
+        public IExpression Y;
         
-        public SpawnI(int x, int y, int line) : base(line) 
+        public SpawnI(IExpression x, IExpression y, int line) : base(line) 
         {
             X = x; Y = y; 
         }
@@ -50,8 +50,8 @@ namespace WallyArt.sln.instructions
 
     public class SizeI : Instruction
     {
-        public int Size;
-        public SizeI( int size, int line) : base(line) 
+        public IExpression Size;
+        public SizeI(IExpression size, int line) : base(line) 
         {
             Size = size % 2 == 0 ? size - 1 : size;
         }
@@ -64,10 +64,10 @@ namespace WallyArt.sln.instructions
 
     public class DrawLineI : Instruction
     {
-        public int dirX;
-        public int dirY;
-        public int Distance;
-        public DrawLineI( int dx, int dy, int dist, int line) : base(line)
+        public IExpression dirX;
+        public IExpression dirY;
+        public IExpression Distance;
+        public DrawLineI(IExpression dx, IExpression dy, IExpression dist, int line) : base(line)
         {
             dirX = dx;
             dirY = dy;
@@ -82,11 +82,11 @@ namespace WallyArt.sln.instructions
 
     public class DrawCircleI : Instruction
     {
-        public int dirX;
-        public int dirY;
-        public int Radius;
+        public IExpression dirX;
+        public IExpression dirY;
+        public IExpression Radius;
 
-        public DrawCircleI(int dx, int dy, int radius, int line) : base(line)
+        public DrawCircleI(IExpression dx, IExpression dy, IExpression radius, int line) : base(line)
         {
             dirX = dx;
             dirY = dy;
@@ -102,13 +102,13 @@ namespace WallyArt.sln.instructions
 
     public class DrawRectangleI : Instruction
     {
-        int dirX;
-        int dirY;
-        int Distance;
-        int Width;
-        int Height;
+        IExpression dirX;
+        IExpression dirY;
+        IExpression Distance;
+        IExpression Width;
+        IExpression Height;
 
-        public DrawRectangleI(int dx, int dy, int distance, int width, int height, int line) : base(line)
+        public DrawRectangleI(IExpression dx, IExpression dy, IExpression distance, IExpression width, IExpression height, int line) : base(line)
         {
             dirX = dx;
             dirY = dy;
