@@ -86,15 +86,17 @@ namespace WallyArt.sln.parser
         {
             if (Current.Type == TokenType.Number)
             {
-                var val = new ConstantExpression(int.Parse(Current.Value));
+                int val = int.Parse(Current.Value);
                 Advance();
-                return val;
+                return new ConstantExpression(val);
             }
             else if(Current.Type == TokenType.Identifier)
             {
-                return new VariableE(Current.Value);
+                string name = Current.Value;
+                Advance();
+                return new VariableE(name);
             }
-            throw new Exception($" Line {Current.Line}: Expected a number but found this {Current.Value}");
+            throw new Exception($" Line {Current.Line}: Expected a number or variable but found this {Current.Value}");
         }
 
         /* Variation of Expect for words */
@@ -173,9 +175,17 @@ namespace WallyArt.sln.parser
                     IExpression dx = ExpectNumberOrVariable();
                     Expect(",");
                     IExpression dy = ExpectNumberOrVariable();
-                    if (!DireccionesValidas.ContainsKey((dx, dy)))     /* If isn't a valid direction give error */
+                    if(dx is ConstantExpression cdx && dy is ConstantExpression cdy)
                     {
-                        throw new Exception($" Line {Current.Line}: ({dx}, {dy}) is an invalid direction");
+                        var dir = (cdx.Value, cdy.Value);
+                        if (!DireccionesValidas.ContainsKey(dir))     /* If isn't a valid direction give error */
+                        {
+                            throw new Exception($" Line {Current.Line}: ({cdx.Value}, {cdy.Value}) is an invalid direction");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($" Line {Current.Line}: Directions must be constant values");
                     }
                     Expect(",");
                     IExpression dist = ExpectNumberOrVariable();
@@ -197,9 +207,17 @@ namespace WallyArt.sln.parser
                     IExpression dx = ExpectNumberOrVariable();
                     Expect(",");
                     IExpression dy = ExpectNumberOrVariable();
-                    if (!DireccionesValidas.ContainsKey((dx, dy)))      /* If isn't a valid direction give error */
+                    if (dx is ConstantExpression cdx && dy is ConstantExpression cdy)
                     {
-                        throw new Exception($" Line {Current.Line}: ({dx}, {dy}) is an invalid direction");
+                        var dir = (cdx.Value, cdy.Value);
+                        if (!DireccionesValidas.ContainsKey(dir))     /* If isn't a valid direction give error */
+                        {
+                            throw new Exception($" Line {Current.Line}: ({cdx.Value}, {cdy.Value}) is an invalid direction");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($" Line {Current.Line}: Directions must be constant values");
                     }
                     Expect(",");
                     IExpression radius = ExpectNumberOrVariable();
@@ -213,9 +231,17 @@ namespace WallyArt.sln.parser
                     IExpression dx = ExpectNumberOrVariable();
                     Expect(",");
                     IExpression dy = ExpectNumberOrVariable();
-                    if (!DireccionesValidas.ContainsKey((dx, dy)))         /* If isn't a valid direction give error */
+                    if (dx is ConstantExpression cdx && dy is ConstantExpression cdy)
                     {
-                        throw new Exception($" Line {Current.Line}: ({dx}, {dy}) is an invalid direction");
+                        var dir = (cdx.Value, cdy.Value);
+                        if (!DireccionesValidas.ContainsKey(dir))     /* If isn't a valid direction give error */
+                        {
+                            throw new Exception($" Line {Current.Line}: ({cdx.Value}, {cdy.Value}) is an invalid direction");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($" Line {Current.Line}: Directions must be constant values");
                     }
                     Expect(",");
                     IExpression distance = ExpectNumberOrVariable();

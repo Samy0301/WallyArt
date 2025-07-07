@@ -31,7 +31,7 @@ namespace WallyArt.sln.instructions
         }
         public override void Execute(Context context)
         {
-            context.Spawn(X, Y);
+            context.Spawn(X.Evaluate(context), Y.Evaluate(context));
         }
     }
 
@@ -53,12 +53,15 @@ namespace WallyArt.sln.instructions
         public IExpression Size;
         public SizeI(IExpression size, int line) : base(line) 
         {
-            Size = size % 2 == 0 ? size - 1 : size;
+            Size = size;
         }
 
         public override void Execute(Context context)
         {
-            context.BrushSize = Size;
+            int s = Size.Evaluate(context);
+
+            if (s % 2 == 0) s -= 1;
+            context.BrushSize = s;
         }
     }
 
@@ -76,7 +79,7 @@ namespace WallyArt.sln.instructions
 
         public override void Execute(Context context)
         {
-            context.DrawLine(dirX, dirY, Distance);
+            context.DrawLine(dirX.Evaluate(context), dirY.Evaluate(context), Distance.Evaluate(context));
         }
     }
 
@@ -95,7 +98,7 @@ namespace WallyArt.sln.instructions
 
         public override void Execute(Context context)
         {
-            context.DrawCircle(dirX, dirY, Radius);
+            context.DrawCircle(dirX.Evaluate(context), dirY.Evaluate(context), Radius.Evaluate(context));
         }
 
     }
@@ -119,7 +122,7 @@ namespace WallyArt.sln.instructions
 
         public override void Execute(Context context)
         {
-            context.DrawRectangle(dirX, dirY, Distance, Width, Height);
+            context.DrawRectangle(dirX.Evaluate(context), dirY.Evaluate(context), Distance.Evaluate(context), Width.Evaluate(context), Height.Evaluate(context));
         }
     }
 

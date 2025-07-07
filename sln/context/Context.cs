@@ -101,7 +101,7 @@ namespace WallyArt.sln.context
 
          public void DrawLine(int dx, int dy, int dist)
          { 
-            for(int i = 1; i < dist; i++)
+            for(int i = 1; i <= dist; i++)
             {
                 Pintar0(X, Y);
 

@@ -332,10 +332,15 @@ namespace WallyArt.sln.expression
             Color target = context.ColorMap[Color];
             int count = 0;
 
-            int minX = Math.Min(X1, X2);
-            int maxX = Math.Max(X1, X2);
-            int minY = Math.Min(Y1, Y2);
-            int maxY = Math.Max(Y1, Y2);
+            int x1 = X1.Evaluate(context);
+            int x2 = X2.Evaluate(context);
+            int y1 = Y1.Evaluate(context);
+            int y2 = Y2.Evaluate(context);
+
+            int minX = Math.Min(x1, x2);
+            int maxX = Math.Max(x1, x2);
+            int minY = Math.Min(y1, y2);
+            int maxY = Math.Max(y1, y2);
 
             for(int x = minX; x <= maxX; x++)
             {
@@ -391,7 +396,7 @@ namespace WallyArt.sln.expression
 
         public int Evaluate(Context context)
         {
-            if (Size == context.brushSize)
+            if (Size.Evaluate(context) == context.brushSize)
             {
                 return 1;
             }
@@ -419,13 +424,17 @@ namespace WallyArt.sln.expression
                 throw new Exception($" The color {Color} is not valid");
             }
 
-            Color target = context.ColorMap[Color];
-            Color actual = context.InttoColor(context.Canvas[context.X + Horizontal, context.Y + Horizontal]);
+            int x = context.X + Horizontal.Evaluate(context);
+            int y = context.Y + Vertical.Evaluate(context);
 
-            if (actual.ToArgb() == target.ToArgb())
+            Color target = context.ColorMap[Color];
+
+            if (x >= 0 && y >= 0 && x < context.CanvasSize && y < context.CanvasSize)
             {
-                return 1;
+                Color actual = context.InttoColor(context.Canvas[x ,y]);
+                return (actual.ToArgb() == target.ToArgb()) ? 1 : 0;
             }
+           
             return 0;
         }
     }
